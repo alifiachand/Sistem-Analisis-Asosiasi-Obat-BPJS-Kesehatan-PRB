@@ -1,0 +1,1123 @@
+import re
+from io import BytesIO
+from pathlib import Path
+import streamlit as st
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import networkx as nx
+import base64
+
+from mlxtend.preprocessing import TransactionEncoder
+from mlxtend.frequent_patterns import fpgrowth, association_rules
+
+
+# =========================
+# KONFIGURASI APLIKASI
+# =========================
+
+st.set_page_config(
+    page_title="Sistem Analisis Asosiasi Obat BPJS Kesehatan PRB",
+    layout="wide"
+)
+
+# Header identitas apotek
+logo_apotek = ["logo_apotek.jpg"]
+
+logo_path = None
+for candidate in logo_apotek:
+    if Path(candidate).exists():
+        logo_path = candidate
+        break
+
+header_col1, header_col2 = st.columns([1.1, 8.9], vertical_alignment="center")
+
+with header_col1:
+    if logo_path is not None:
+        st.image(logo_path, width=140)
+
+with header_col2:
+    st.markdown(
+        """
+        <div style="display: flex; flex-direction: column; justify-content: center;">
+            <div style="font-size: 26px; font-weight: 700; margin-bottom: 10px;">
+                Apotek Rajendra
+            </div>
+            <div style="font-size: 42px; font-weight: 800; line-height: 1.15;">
+                Sistem Analisis Asosiasi Obat BPJS Kesehatan PRB
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+st.markdown(
+    """
+    <div style="margin-top: 22px; margin-bottom: 8px; font-size: 16px;">
+        Upload data resep dari Farmalite untuk menghasilkan aturan asosiasi obat.
+        File yang diunggah harus berisi kolom <b>No. Fraktur</b> dan <b>Produk</b>.
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
+# =========================
+# FUNGSI BANTUAN
+# =========================
+
+def trim_upper(x):
+    x = "" if pd.isna(x) else str(x)
+    x = x.upper()
+    x = re.sub(r"\s+", " ", x)
+    return x.strip()
+
+
+def trim_text(x):
+    x = "" if pd.isna(x) else str(x)
+    x = re.sub(r"\s+", " ", x)
+    return x.strip()
+
+
+def regex_replace(text, pattern, repl=""):
+    return re.sub(pattern, repl, str(text))
+
+
+def contains(text, keyword):
+    return keyword in str(text)
+
+
+def baca_mapping(path="Mapping nama obat.xlsx"):
+    mapping = pd.read_excel(path)
+    mapping = mapping.iloc[:, :2].copy()
+    mapping.columns = ["raw", "master"]
+
+    mapping["raw"] = mapping["raw"].astype(str).str.upper().str.strip()
+    mapping["raw"] = mapping["raw"].apply(lambda x: re.sub(r"\s+", " ", x))
+
+    mapping["master"] = mapping["master"].astype(str).str.strip()
+    mapping["master"] = mapping["master"].apply(lambda x: re.sub(r"\s+", " ", x))
+
+    return dict(zip(mapping["raw"], mapping["master"]))
+
+
+# =========================
+# PREPROCESSING SESUAI SPREADSHEET
+# =========================
+
+def proses_preprocessing(df):
+    df = df.copy()
+
+    # Ambil dan rename kolom awal
+    df = df.rename(columns={
+        "No. Fraktur": "ID Resep Asli",
+        "Produk": "Produk"
+    })
+
+    df = df[["ID Resep Asli", "Produk"]].copy()
+    df = df.dropna(subset=["ID Resep Asli", "Produk"])
+
+    # 1. Penyeragaman ID Resep: R00001, R00002, dst
+    unique_ids = df["ID Resep Asli"].drop_duplicates().tolist()
+    id_map = {
+        old_id: f"R{i+1:05d}"
+        for i, old_id in enumerate(unique_ids)
+    }
+
+    df["ID Resep"] = df["ID Resep Asli"].map(id_map)
+
+    # Kolom B: Produk
+    df["B_Produk"] = df["Produk"].astype(str)
+
+    # 1. Replace nama obat khusus sesuai tahap pertama preprocessing
+    # Produk di sebelah kiri diganti menjadi Nama Obat di sebelah kanan
+    replace_produk_awal = {
+        "BPJS PRB GLIKLAZID TAB 80 MG 100S DEXA":
+            "BPJS PRB GLICLAZIDE TAB 80 MG 100S DEXA",
+
+        "BPJS PRB HEXYMER (TRIHEXYPHENIDYL HCL) TAB 2 MG 100S MERSI":
+            "BPJS PRB HEXYMER (TRIHEXYPHENIDYL HYDROCHLORIDE) TAB 2 MG 100S MERSI",
+
+        "BPJS PRB FONYLIN MR (GLIKLAZIDE) TAB 60MG 30S FERRON PAR PHARMACEUTICALS":
+            "BPJS PRB FONYLIN MR (GLICLAZIDE) TAB 60MG 30S FERRON PAR PHARMACEUTICALS",
+
+        "BPJS PRB HYDROCHLOROTHIAZIDE (HCT) TAB 25 MG 100S KIMIA FARMA":
+            "BPJS PRB HYDROCHLOROTHIAZIDE (HYDROCHLOROTHIAZIDE) TAB 25 MG 100S KIMIA FARMA",
+
+        "BPJS PRB HEXYMER (TRIHEXYPHENIDYL HCL) TAB 2 MG 100S HOLIPHARMA":
+            "BPJS PRB HEXYMER (TRIHEXYPHENIDYL HYDROCHLORIDE) TAB 2 MG 100S HOLIPHARMA",
+
+        "BPJS PRB PROPANOLOL 10MG OGB DEXA":
+            "BPJS PRB PROPRANOLOL 10MG OGB DEXA",
+
+        "BPJS PRB RETAPHYL SR (THEOPHYLINE)":
+            "BPJS PRB RETAPHYL SR (THEOPHYLLINE)",
+
+        "BPJS PRB NOVOMIX 30 (ASPART) 100 IU/ML 5S 3ML INSULIN":
+            "BPJS PRB NOVOMIX 30 FLEXPEN (BIPHASIC INSULIN ASPART) 100 IU/ML 5S 3ML INSULIN",
+
+        "BPJS PRB GLIKLAZIDE MR 60 MG PRATAPA 30 S":
+            "BPJS PRB GLICLAZIDE MR 60 MG PRATAPA 30S",
+
+        "BPJS PRB HYDROCHLOROTHIAZIDE (HCT) KIMIA FARMA 25 MG 100S":
+            "BPJS PRB HYDROCHLOROTHIAZIDE (HYDROCHLOROTHIAZIDE) KIMIA FARMA 25 MG 100S",
+
+        "BPJS PRB HEXYMER (TRIHEXYPHENIDYL HCL) MERSI TAB 2 MG 100S":
+            "BPJS PRB HEXYMER (TRIHEXYPHENIDYL HYDROCHLORIDE) MERSI TAB 2 MG 100S",
+
+        "BPJS PRB GLIKLAZID DEXA 80 MG 100S":
+            "BPJS PRB GLICLAZIDE DEXA 80 MG 100S",
+
+        "BPJS PRB FONYLIN MR (GLIKLAZIDE) FERRON PAR PHARMACEUTICALS 60MG 30S":
+            "BPJS PRB FONYLIN MR (GLICLAZIDE) FERRON PAR PHARMACEUTICALS 60MG 30S",
+
+        "BPJS PRB RETAPHYL SR (THEOPHYLINE) 300 Mg":
+            "BPJS PRB RETAPHYL SR (THEOPHYLLINE) 300 Mg",
+
+        "BPJS PRB TRIHEXYPHENIDYL HCL HOLI 2MG TAB 100S":
+            "BPJS PRB TRIHEXYPHENIDYL HYDROCHLORIDE HOLI 2MG TAB 100S",
+    }
+
+    # normalisasi key agar tetap cocok walaupun kapital/spasi berbeda
+    replace_produk_awal = {
+        trim_upper(k): v for k, v in replace_produk_awal.items()
+    }
+
+    df["B_Produk_Replace"] = df["B_Produk"].apply(
+        lambda x: replace_produk_awal.get(trim_upper(x), x)
+    )
+
+    # C: tanpa bpjs prb
+    df["C_tanpa_bpjs_prb"] = df["B_Produk_Replace"].apply(
+        lambda x: trim_upper(str(x).replace("BPJS PRB ", ""))
+    )
+
+    # D: tanpa merk
+    def cleaning_d(x):
+        hasil = x
+        daftar_hapus = [
+            " TAB",
+            " HJ",
+            " DEXA",
+            " MEGA",
+            " KF",
+            " BETA",
+            " KIMIA FARMA",
+            " 100S",
+            " 30S",
+            " 200S"
+        ]
+        for item in daftar_hapus:
+            hasil = hasil.replace(item, "")
+        return trim_text(hasil)
+
+    df["D_tanpa_merk"] = df["C_tanpa_bpjs_prb"].apply(cleaning_d)
+
+    # E: cleaning 1, ambil isi tanda kurung kalau ada
+    def cleaning_e(x):
+        x = str(x)
+        if "(" in x and ")" in x and x.find("(") < x.find(")"):
+            inside = x[x.find("(")+1:x.find(")")]
+            after = x[x.find(")")+1:]
+            return trim_text(inside + " " + after)
+        return trim_text(x)
+
+    df["E_cleaning_1"] = df["D_tanpa_merk"].apply(cleaning_e)
+
+    # F: cleaning 2
+    def cleaning_f(x):
+        pattern = r"5S|1S|TURBUHALER|DISKUS|DOSIS|INHALATION|INHALER|CAPS|INSULIN|BAYER|YARINDO|MITSUBISHI|FERRON PAR PHARMACEUTICALS"
+        return trim_text(regex_replace(x, pattern, ""))
+
+    df["F_cleaning_2"] = df["E_cleaning_1"].apply(cleaning_f)
+
+    # G: cleaning 3
+    def cleaning_g(x):
+        x = str(x).replace(",", ".")
+        x = regex_replace(x, r"\b(BESILATE|FUMARATE)\b", "")
+        x = regex_replace(x, r"\s*/\s*", " + ")
+        x = regex_replace(x, r"\s+(60|120|200)\b\s*$", "")
+        x = regex_replace(x, r"\s{2,}", " ")
+        return trim_text(x)
+
+    df["G_cleaning_3"] = df["F_cleaning_2"].apply(cleaning_g)
+
+    # H: cleaning 4
+    def cleaning_h(x):
+        x = regex_replace(x, r"\b\d+\s*S\b", "")
+        x = regex_replace(x, r"\b(TEMPO SCAN|MERSI|IKAPHARMINDO|IMFARMIND)\b", "")
+        return trim_text(x)
+
+    df["H_cleaning_4"] = df["G_cleaning_3"].apply(cleaning_h)
+
+    # I: HAPUS LET 1
+    df["I_hapus_let_1"] = df["H_cleaning_4"].apply(
+        lambda x: trim_text(regex_replace(x, r"(MG|MCG|ML)LET\b", r"\1"))
+    )
+
+    # J: HAPUS LET 2
+    def cleaning_j(x):
+        x = trim_text(x)
+        if x == "PHENOBARBITALLET":
+            return "PHENOBARBITAL"
+        if x == "VILDAGLIPTINLET":
+            return "VILDAGLIPTIN"
+        return x
+
+    df["J_hapus_let_2"] = df["I_hapus_let_1"].apply(cleaning_j)
+
+    # L: hapus obat di sistem lama
+    def cleaning_l(x):
+        daftar = ["PIOGLITAZONE", "SPIRONOLACTONE", "HALOPERIDOL", "ATORVASTATIN"]
+        ada_obat = any(re.search(rf"^{obat}\b", str(x)) for obat in daftar)
+        ada_angka = bool(re.search(r"\d", str(x)))
+        if ada_obat and not ada_angka:
+            return "HAPUS (TANPA DOSIS)"
+        return "OK"
+
+    df["L_hapus_obat_sistem_lama"] = df["J_hapus_let_2"].apply(cleaning_l)
+
+    # M: cek dosis
+    df["M_cek_dosis"] = df["J_hapus_let_2"].apply(
+        lambda x: "MASIH TANPA DOSIS" if not bool(re.search(r"\d", str(x))) else "AMAN"
+    )
+
+    # N: kasih dosis
+    def cleaning_n(x):
+        x = trim_text(x)
+
+        mapping_dosis = {
+            "CLOPIDOGREL": "CLOPIDOGREL 75 MG",
+            "FUROSEMIDE": "FUROSEMIDE 40 MG",
+            "CARVEDILOL": "CARVEDILOL 6.25 MG",
+            "CEPEZET": "CEPEZET 100 MG",
+            "VILDAGLIPTIN": "VILDAGLIPTIN 50 MG",
+            "RETAPHYL SR": "THEOPHYLLINE 300 MG",
+            "PHENOBARBITAL": "PHENOBARBITAL 30 MG",
+            "VITAMIN B1 MARIN LIZA": "VITAMIN B1 50 MG",
+            "SALBULIN": "SALBULIN INHALER",
+            "RYZODEG FLEX TOUCH": "RYZODEG FLEX TOUCH",
+            "THEOPHYLLINE": "THEOPHYLLINE 300 MG",
+            "ATORVASTATIN MEDIKA": "ATORVASTATIN 20 MG",
+            "INDACETROL": "INDACETROL INHALER"
+        }
+
+        return mapping_dosis.get(x, x)
+
+    df["N_kasih_dosis"] = df["J_hapus_let_2"].apply(cleaning_n)
+
+    # P: obat awal
+    df["P_obat_awal"] = df["N_kasih_dosis"]
+
+    # Q: hapus merk yang masih lolos
+    def cleaning_q(x):
+        x = str(x).upper()
+
+        # kasih spasi antara angka dan satuan
+        x = regex_replace(x, r"(\d)(MG|MCG)\b", r"\1 \2")
+
+        pattern_merk = (
+            r"\b(DARYA-VARIA|PIM|SAMCO|SAMPHARINDO|SAMPARINDO|PHARMACON|"
+            r"KALBE|FARMA|MEPRO|PRATAPA|NIRMALA|NOVAPHARIN|INDOFARMA|"
+            r"PRATPA|NIRMALA|HOLI PHARMA|HOLIPHARMA|OGB|ESA|MARIN|LIZA|"
+            r"NOVEL|NOVA|HOLI|ACTAVIS|ETA|MEDICA|MEDIKA|DEXA|MEGA|HJ|KF|"
+            r"BETA|KIMIA)\b"
+        )
+
+        x = regex_replace(x, pattern_merk, "")
+        x = regex_replace(x, r"\s{2,}", " ")
+        return trim_text(x)
+
+    df["Q_hapus_merk"] = df["P_obat_awal"].apply(cleaning_q)
+
+    # R: amlodipin 10 mg 10 mg
+    def cleaning_r(x):
+        x = trim_text(x)
+        if x == "AMLODIPINE 10 MG 10 MG":
+            return "AMLODIPINE 10 MG"
+        if x == "DIGOXIN 0.25 0.25 MG":
+            return "DIGOXIN 0.25 MG"
+        return x
+
+    df["R_amlodipin_dobel"] = df["Q_hapus_merk"].apply(cleaning_r)
+
+    # S: ASETOSAL 80 MG 2
+    df["S_asetosal_80_mg_2"] = df["R_amlodipin_dobel"].apply(
+        lambda x: "ASETOSAL 80 MG" if trim_text(x) == "ASETOSAL 80 MG 2" else x
+    )
+
+    # T: FENOTEROL 100 MCG 200 100 MCG
+    df["T_fenoterol"] = df["S_asetosal_80_mg_2"].apply(
+        lambda x: "FENOTEROL HYDROBROMIDE 100 MCG"
+        if trim_text(x) == "FENOTEROL HYDROBROMIDE 100 MCG 200 100 MCG"
+        else x
+    )
+
+    # U: ISOSORBIDE DINITRATE NIRMALA10 MG
+    df["U_nirmala10"] = df["T_fenoterol"].apply(
+        lambda x: str(x).replace("NIRMALA10", "NIRMALA 10")
+        if "NIRMALA10" in str(x)
+        else x
+    )
+
+    # V: HAPUS NIRMALA
+    df["V_hapus_nirmala"] = df["U_nirmala10"].apply(
+        lambda x: trim_text(str(x).replace("NIRMALA ", ""))
+        if "NIRMALA 10" in str(x)
+        else x
+    )
+
+    # W: HAPUS SULFATE
+    df["W_hapus_sulfate"] = df["V_hapus_nirmala"].apply(
+        lambda x: trim_text(regex_replace(x, r"SALBUTAMOL\s+SULFATE", "SALBUTAMOL"))
+    )
+
+    # X: HAPUS SYR
+    def cleaning_x(x):
+        x = trim_text(x)
+        if x == "VALPROIC ACID SYR 250 MG + 5ML":
+            return "VALPROIC ACID 250 MG + 5ML 100ML"
+        return x
+
+    df["X_hapus_syr"] = df["W_hapus_sulfate"].apply(cleaning_x)
+
+    # Y: ganti adalat oros
+    def cleaning_y(x):
+        x = trim_text(x)
+        if x == "ADALAT OROS 30 MG":
+            return "NIFEDIPINE 30 MG (OROS)"
+        return x
+
+    df["Y_ganti_adalat_oros"] = df["X_hapus_syr"].apply(cleaning_y)
+
+    # Z: ganti acetosal
+    def cleaning_z(x):
+        x = trim_text(x)
+        if "ASETOSAL" in x or "ACETYLSALICYLIC ACID" in x:
+            return "ACETOSAL 80 MG"
+        return x
+
+    df["Z_ganti_acetosal"] = df["Y_ganti_adalat_oros"].apply(cleaning_z)
+
+    # AA: MR gliclazide
+    def cleaning_aa(x):
+        x = trim_text(x)
+
+        # Samakan ejaan GLIKLAZIDE menjadi GLICLAZIDE
+        x = x.replace("GLIKLAZIDE", "GLICLAZIDE")
+
+        # Pastikan gliclazide 60 mg menjadi bentuk MR
+        x = x.replace("GLICLAZIDE 60 MG", "GLICLAZIDE MR 60 MG")
+
+        return trim_text(x)
+
+    df["AA_mr_gliclazide"] = df["Z_ganti_acetosal"].apply(cleaning_aa)
+
+    # AB: Lispro tambah mix
+    def cleaning_ab(row):
+        produk_awal = str(row["B_Produk"]).upper()
+        hasil = row["AA_mr_gliclazide"]
+
+        if "MIX 25" in produk_awal:
+            return hasil + " MIX 25"
+        if "MIX 50" in produk_awal:
+            return hasil + " MIX 50"
+        return hasil
+
+    df["AB_lispro_tambah_mix"] = df.apply(cleaning_ab, axis=1)
+
+    # AC: hapus angka akhir di theophylline
+    def cleaning_ac(x):
+        x = trim_text(x)
+        if "THEOPHYLLINE" in x:
+            return trim_text(regex_replace(x, r" \d+$", ""))
+        return x
+
+    df["AC_hapus_2_theo"] = df["AB_lispro_tambah_mix"].apply(cleaning_ac)
+
+    # AD: ganti budesonide
+    df["AD_ganti_budesonide"] = df["AC_hapus_2_theo"].apply(
+        lambda x: str(x).replace(
+            "BUDESONIDE + 160 + 4.5",
+            "BUDESONIDE + FORMOTEROL 160 + 4.5 MCG"
+        )
+    )
+
+    # Mapping nama obat
+    kamus_mapping = baca_mapping()
+    df["Nama Standar"] = df["AD_ganti_budesonide"].map(kamus_mapping)
+
+    # Kalau ada yang tidak ketemu mapping, tetap ditampilkan agar bisa dicek
+    df["Nama Standar"] = df["Nama Standar"].fillna(df["AD_ganti_budesonide"])
+    df["Nama Standar"] = df["Nama Standar"].apply(trim_text)
+
+    # Data bersih sebelum duplikasi
+    df_bersih = df[["ID Resep", "Nama Standar"]].copy()
+    df_bersih = df_bersih.rename(columns={"Nama Standar": "Nama Obat"})
+
+    # Rapikan teks dan hapus baris yang kemungkinan merupakan header ikut terbaca sebagai data
+    df_bersih["ID Resep"] = df_bersih["ID Resep"].astype(str).apply(trim_text)
+    df_bersih["Nama Obat"] = df_bersih["Nama Obat"].astype(str).apply(trim_text)
+
+    df_bersih = df_bersih[
+        ~(
+            df_bersih["ID Resep"].str.upper().eq("ID RESEP")
+            | df_bersih["Nama Obat"].str.upper().eq("NAMA OBAT")
+            | df_bersih["ID Resep"].str.upper().str.contains("ID RESEP", na=False)
+            | df_bersih["Nama Obat"].str.upper().str.contains("NAMA OBAT", na=False)
+        )
+    ]
+
+    df_bersih = df_bersih[
+        (df_bersih["ID Resep"] != "")
+        & (df_bersih["Nama Obat"] != "")
+    ]
+
+    # Hapus duplikasi ID Resep + Nama Obat
+    df_bersih = df_bersih.drop_duplicates(subset=["ID Resep", "Nama Obat"])
+
+    # Transformasi data menjadi transaksi
+    transaksi = (
+        df_bersih
+        .groupby("ID Resep")["Nama Obat"]
+        .apply(lambda x: "; ".join(pd.unique(x)))
+        .reset_index()
+    )
+
+    transaksi.columns = ["ID Resep", "Nama Obat"]
+
+    return df, df_bersih, transaksi
+
+
+# =========================
+# FP-GROWTH DAN ASSOCIATION RULES
+# =========================
+
+def proses_arm(transaksi, min_support=0.026, min_confidence=0.20):
+    list_transaksi = transaksi["Nama Obat"].apply(
+        lambda x: [item.strip() for item in str(x).split(";") if item.strip() != ""]
+    ).tolist()
+
+    te = TransactionEncoder()
+    te_array = te.fit(list_transaksi).transform(list_transaksi)
+
+    df_encoded = pd.DataFrame(te_array, columns=te.columns_)
+
+    frequent_itemsets = fpgrowth(
+        df_encoded,
+        min_support=min_support,
+        use_colnames=True
+    )
+
+    if frequent_itemsets.empty:
+        return frequent_itemsets, pd.DataFrame()
+
+    rules = association_rules(
+        frequent_itemsets,
+        metric="confidence",
+        min_threshold=min_confidence
+    )
+
+    rules = rules[rules["lift"] > 1].copy()
+    rules = rules.sort_values(by="confidence", ascending=False).reset_index(drop=True)
+
+    return frequent_itemsets, rules
+
+
+def format_rules_for_display(rules):
+    tampil = rules.copy()
+
+    tampil["antecedents"] = tampil["antecedents"].apply(lambda x: ", ".join(list(x)))
+    tampil["consequents"] = tampil["consequents"].apply(lambda x: ", ".join(list(x)))
+
+    kolom = ["antecedents", "consequents", "support", "confidence", "lift"]
+    tampil = tampil[kolom]
+
+    tampil = tampil.rename(columns={
+        "antecedents": "Obat dalam Resep",
+        "consequents": "Obat yang Ikut Muncul",
+        "support": "Support",
+        "confidence": "Confidence",
+        "lift": "Lift"
+    })
+
+    tampil["Support"] = tampil["Support"].round(3)
+    tampil["Confidence"] = tampil["Confidence"].round(3)
+    tampil["Lift"] = tampil["Lift"].round(3)
+
+    return tampil
+
+
+def hitung_obat_unik_dari_transaksi(transaksi):
+    list_obat_transaksi = []
+
+    for daftar_obat in transaksi["Nama Obat"]:
+        obat_per_resep = [
+            obat.strip()
+            for obat in str(daftar_obat).split(";")
+            if obat.strip() != ""
+            and obat.strip().upper() != "NAMA OBAT"
+            and obat.strip().upper() != "ID RESEP"
+        ]
+        list_obat_transaksi.extend(obat_per_resep)
+
+    daftar_obat_unik = sorted(set(list_obat_transaksi))
+    return daftar_obat_unik
+
+
+def format_persen(nilai):
+    return f"{nilai * 100:.1f}%".replace(".", ",")
+
+
+def format_angka(nilai):
+    return f"{nilai:.3f}".replace(".", ",")
+
+
+def buat_interpretasi_rules(rules, jumlah=5):
+    rules_top = rules.head(jumlah).copy()
+    hasil = []
+
+    for i, row in rules_top.iterrows():
+        antecedent = ", ".join(list(row["antecedents"]))
+        consequent = ", ".join(list(row["consequents"]))
+        support = format_persen(row["support"])
+        confidence = format_persen(row["confidence"])
+        lift = format_angka(row["lift"])
+
+        kalimat = (
+            f"**Aturan {i + 1}.** Apabila dokter meresepkan **{antecedent}**, "
+            f"maka **{consequent}** juga cenderung ikut diresepkan. "
+            f"Kombinasi ini muncul pada **{support}** dari seluruh resep. "
+            f"Dari seluruh resep yang berisi **{antecedent}**, sebanyak **{confidence}** "
+            f"juga berisi **{consequent}**. Nilai **lift {lift}** menunjukkan bahwa "
+            f"kedua obat memiliki kecenderungan muncul bersamaan lebih kuat dibandingkan kemunculan biasa."
+        )
+
+        hasil.append(kalimat)
+
+    return hasil
+
+
+def buat_file_excel(rules_tampil, df_bersih, transaksi, daftar_obat_unik):
+    output = BytesIO()
+
+    daftar_obat_unik_df = pd.DataFrame({
+        "Nama Obat": daftar_obat_unik
+    })
+
+    with pd.ExcelWriter(output, engine="openpyxl") as writer:
+        rules_tampil.to_excel(writer, index=False, sheet_name="Aturan Asosiasi")
+        df_bersih.to_excel(writer, index=False, sheet_name="Data Bersih")
+        transaksi.to_excel(writer, index=False, sheet_name="Data Transaksi")
+        daftar_obat_unik_df.to_excel(writer, index=False, sheet_name="Daftar Obat Unik")
+
+    output.seek(0)
+    return output
+
+
+# =========================
+# NETWORK GRAPH
+# =========================
+
+def buat_network_graph(rules2):
+    rules2 = rules2.copy()
+
+    rules2["ant_list"] = rules2["antecedents"].apply(
+        lambda x: list(x) if isinstance(x, (list, tuple, set, frozenset)) else [x]
+    )
+
+    rules2["con_list"] = rules2["consequents"].apply(
+        lambda x: list(x) if isinstance(x, (list, tuple, set, frozenset)) else [x]
+    )
+
+    rules2["con_str"] = rules2["con_list"].apply(lambda x: x[0] if len(x) > 0 else "")
+
+    right_order = [
+        "glimepiride 2 mg",
+        "metformin 500 mg",
+        "candesartan 8 mg",
+        "acetylsalicylic acid 80 mg",
+        "amlodipine 10 mg",
+        "bisoprolol 2,5 mg",
+        "candesartan 16 mg"
+    ]
+
+    drug_order = [
+        "glimepiride 1 mg",
+        "glimepiride 2 mg",
+        "furosemide 40 mg",
+        "nifedipine 30 mg",
+        "clopidogrel 75 mg",
+        "bisoprolol 5 mg",
+        "metformin 500 mg",
+        "candesartan 8 mg",
+        "acetylsalicylic acid 80 mg",
+        "amlodipine 10 mg",
+        "bisoprolol 2,5 mg",
+        "candesartan 16 mg"
+    ]
+
+    all_ants = sorted(set(a for ants in rules2["ant_list"] for a in ants))
+    all_cons = sorted(set(c for cons in rules2["con_list"] for c in cons))
+    all_drugs = sorted(set(all_ants + all_cons))
+
+    for d in all_drugs:
+        if d not in drug_order:
+            drug_order.append(d)
+
+    for d in all_cons:
+        if d not in right_order:
+            right_order.append(d)
+
+    drug_rank = {drug: i for i, drug in enumerate(drug_order)}
+    right_rank = {drug: i for i, drug in enumerate(right_order)}
+
+    def avg_ant_rank(ants):
+        ranks = [drug_rank.get(a, 999) for a in ants]
+        return np.mean(ranks) if len(ranks) > 0 else 999
+
+    rules2["avg_ant_rank"] = rules2["ant_list"].apply(avg_ant_rank)
+    rules2["con_rank"] = rules2["con_str"].apply(lambda x: right_rank.get(x, 999))
+
+    top_rules = rules2.sort_values(
+        by=["con_rank", "avg_ant_rank", "confidence", "lift"],
+        ascending=[True, True, False, False]
+    ).reset_index(drop=True)
+
+    top_rules["rule_id"] = ["R" + str(i + 1) for i in range(len(top_rules))]
+
+    right_drugs = set(c for cons in top_rules["con_list"] for c in cons)
+    all_ant_drugs = set(a for ants in top_rules["ant_list"] for a in ants)
+    left_drugs = all_ant_drugs - right_drugs
+
+    right_drugs_sorted = [d for d in right_order if d in right_drugs]
+    left_drugs_sorted = [d for d in drug_order if d in left_drugs]
+
+    G = nx.DiGraph()
+
+    consequent_colors = {
+        "metformin 500 mg": "tab:brown",
+        "glimepiride 2 mg": "gray",
+        "candesartan 8 mg": "tab:purple",
+        "acetylsalicylic acid 80 mg": "tab:blue",
+        "amlodipine 10 mg": "tab:red",
+        "bisoprolol 2,5 mg": "tab:orange",
+        "candesartan 16 mg": "tab:green"
+    }
+
+    for drug in left_drugs_sorted:
+        G.add_node(drug, node_type="drug_left")
+
+    for drug in right_drugs_sorted:
+        G.add_node(drug, node_type="drug_right")
+
+    for _, row in top_rules.iterrows():
+        rule_node = row["rule_id"]
+        ants = row["ant_list"]
+        cons = row["con_list"]
+        con_main = row["con_str"]
+        conf = row["confidence"]
+        color = consequent_colors.get(con_main, "black")
+
+        G.add_node(
+            rule_node,
+            node_type="rule",
+            confidence=conf,
+            consequent=con_main,
+            color=color
+        )
+
+        for ant in ants:
+            G.add_edge(
+                ant, rule_node,
+                edge_type="ant",
+                rule=rule_node,
+                color=color
+            )
+
+        for con in cons:
+            G.add_edge(
+                rule_node, con,
+                edge_type="cons",
+                rule=rule_node,
+                color=color
+            )
+
+    pos = {}
+
+    rule_gap = 1.25
+    group_gap = 0.40
+
+    current_y = 0
+    rule_y_map = {}
+    group_centers = {}
+
+    for con in right_drugs_sorted:
+        subset = top_rules[top_rules["con_str"] == con]
+
+        if len(subset) == 0:
+            continue
+
+        start_y = current_y
+
+        for _, row in subset.iterrows():
+            rid = row["rule_id"]
+            pos[rid] = (0, -current_y)
+            rule_y_map[rid] = -current_y
+            current_y += rule_gap
+
+        end_y = current_y - rule_gap
+        group_centers[con] = -((start_y + end_y) / 2)
+
+        current_y += group_gap
+
+    for drug in right_drugs_sorted:
+        if drug in group_centers:
+            pos[drug] = (3.2, group_centers[drug])
+        else:
+            pos[drug] = (3.2, -current_y)
+            current_y += 2.0
+
+    left_anchor = {}
+
+    for drug in left_drugs_sorted:
+        connected_rules = []
+
+        for _, row in top_rules.iterrows():
+            if drug in row["ant_list"]:
+                connected_rules.append(row["rule_id"])
+
+        if connected_rules:
+            left_anchor[drug] = np.mean([rule_y_map[r] for r in connected_rules])
+        else:
+            left_anchor[drug] = 0
+
+    left_drugs_sorted = sorted(left_drugs_sorted, key=lambda d: left_anchor[d], reverse=True)
+
+    min_left_gap = 1.65
+    last_y = None
+
+    for drug in left_drugs_sorted:
+        y = left_anchor[drug]
+
+        if last_y is not None and y > last_y - min_left_gap:
+            y = last_y - min_left_gap
+
+        pos[drug] = (-3.2, y)
+        last_y = y
+
+    def wrap_drug_label(label):
+        label = str(label)
+        parts = label.rsplit(" ", 2)
+
+        if len(parts) == 3 and parts[-1] == "mg":
+            return parts[0] + "\n" + parts[1] + " " + parts[2]
+        else:
+            return label
+
+    labels = {}
+
+    for node, data in G.nodes(data=True):
+        if data.get("node_type") in ["drug_left", "drug_right"]:
+            labels[node] = wrap_drug_label(node)
+        else:
+            labels[node] = node
+
+    fig, ax = plt.subplots(figsize=(16, 20))
+
+    left_nodes = [
+        n for n, d in G.nodes(data=True)
+        if d.get("node_type") == "drug_left"
+    ]
+
+    right_nodes = [
+        n for n, d in G.nodes(data=True)
+        if d.get("node_type") == "drug_right"
+    ]
+
+    rule_nodes_graph = [
+        n for n, d in G.nodes(data=True)
+        if d.get("node_type") == "rule"
+    ]
+
+    nx.draw_networkx_nodes(
+        G, pos,
+        nodelist=left_nodes,
+        node_color="lightblue",
+        node_size=2400,
+        alpha=0.95,
+        ax=ax
+    )
+
+    nx.draw_networkx_nodes(
+        G, pos,
+        nodelist=right_nodes,
+        node_color="lightgray",
+        node_size=2600,
+        alpha=0.95,
+        ax=ax
+    )
+
+    nx.draw_networkx_nodes(
+        G, pos,
+        nodelist=rule_nodes_graph,
+        node_color="orange",
+        node_shape="s",
+        node_size=900,
+        alpha=0.95,
+        ax=ax
+    )
+
+    nx.draw_networkx_labels(
+        G, pos,
+        labels=labels,
+        font_size=10,
+        font_weight="bold",
+        ax=ax
+    )
+
+    for rule in rule_nodes_graph:
+        color = G.nodes[rule].get("color", "black")
+
+        ant_edges = [
+            (u, v) for u, v, d in G.edges(data=True)
+            if d.get("edge_type") == "ant" and d.get("rule") == rule
+        ]
+
+        cons_edges = [
+            (u, v) for u, v, d in G.edges(data=True)
+            if d.get("edge_type") == "cons" and d.get("rule") == rule
+        ]
+
+        nx.draw_networkx_edges(
+            G, pos,
+            edgelist=ant_edges,
+            edge_color=[color],
+            arrowstyle="-|>",
+            arrowsize=13,
+            width=1.3,
+            alpha=0.70,
+            style="dashed",
+            connectionstyle="arc3,rad=0.0",
+            min_source_margin=35,
+            min_target_margin=30,
+            ax=ax
+        )
+
+        nx.draw_networkx_edges(
+            G, pos,
+            edgelist=cons_edges,
+            edge_color=[color],
+            arrowstyle="-|>",
+            arrowsize=14,
+            width=2.3,
+            alpha=0.90,
+            connectionstyle="arc3,rad=0.0",
+            min_source_margin=25,
+            min_target_margin=35,
+            ax=ax
+        )
+
+    ax.axis("off")
+
+    if len(pos) > 0:
+        y_vals = [p[1] for p in pos.values()]
+        ax.set_ylim(min(y_vals) - 1.5, max(y_vals) + 1.5)
+        ax.set_xlim(-5.3, 5.3)
+
+    plt.tight_layout()
+
+    return fig
+
+
+# =========================
+# TAMPILAN STREAMLIT
+# =========================
+
+uploaded_file = st.file_uploader(
+    "Upload file data resep",
+    type=["xlsx", "xls", "csv"],
+    help="File harus berisi kolom No. Fraktur dan Produk."
+)
+
+if uploaded_file is not None:
+    if uploaded_file.name.endswith(".csv"):
+        df_upload = pd.read_csv(uploaded_file)
+    else:
+        df_upload = pd.read_excel(uploaded_file)
+
+    st.success("File berhasil dibaca.")
+
+    try:
+        df_detail, df_bersih, transaksi = proses_preprocessing(df_upload)
+
+        daftar_obat_unik = hitung_obat_unik_dari_transaksi(transaksi)
+        jumlah_obat_unik_transaksi = len(daftar_obat_unik)
+
+        st.subheader("Ringkasan Data")
+
+        st.markdown(
+            """
+            <style>
+            .metric-card {
+                background-color: #ffffff;
+                border: 1px solid #d7eadc;
+                border-left: 6px solid #2e9d57;
+                border-radius: 12px;
+                padding: 18px 20px;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+                height: 126px;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+            }
+
+            .metric-label {
+                font-size: 14px;
+                color: #4b5563;
+                margin-bottom: 10px;
+                font-weight: 600;
+                min-height: 38px;
+                display: flex;
+                align-items: center;
+            }
+
+            .metric-value {
+                font-size: 34px;
+                color: #111827;
+                font-weight: 700;
+                line-height: 1;
+            }
+            </style>
+            """,
+            unsafe_allow_html=True
+        )
+
+        col1, col2, col3, col4 = st.columns(4)
+
+        with col1:
+            st.markdown(
+                f"""
+                <div class="metric-card">
+                    <div class="metric-label">Baris Data Mentah</div>
+                    <div class="metric-value">{len(df_upload)}</div>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+
+        with col2:
+            st.markdown(
+                f"""
+                <div class="metric-card">
+                <div class="metric-label">Baris Setelah Duplikasi Dihapus</div>
+                <div class="metric-value">{len(df_bersih)}</div>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+        with col3:
+            st.markdown(
+                f"""
+                <div class="metric-card">
+                    <div class="metric-label">Jumlah Resep Unik</div>
+                    <div class="metric-value">{transaksi["ID Resep"].nunique()}</div>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+
+        with col4:
+            st.markdown(
+                f"""
+                <div class="metric-card">
+                    <div class="metric-label">Jumlah Obat Unik</div>
+                    <div class="metric-value">{jumlah_obat_unik_transaksi}</div>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+
+        st.markdown("<div style='margin-bottom: 22px;'></div>", unsafe_allow_html=True)
+
+        with st.expander("Lihat daftar obat unik"):
+            st.dataframe(
+                pd.DataFrame({"Nama Obat": daftar_obat_unik}),
+                use_container_width=True
+            )
+
+        with st.expander("Lihat data mentah"):
+            st.dataframe(df_upload.head(100), use_container_width=True)
+
+        with st.expander("Lihat data bersih"):
+            st.dataframe(df_bersih.head(100), use_container_width=True)
+
+        with st.expander("Lihat data transaksi"):
+            st.dataframe(transaksi.head(100), use_container_width=True)
+
+        st.subheader("Hasil Aturan Asosiasi")
+
+        frequent_itemsets, rules = proses_arm(
+            transaksi,
+            min_support=0.026,
+            min_confidence=0.20
+        )
+
+        if rules.empty:
+            st.warning("Tidak ada aturan asosiasi yang terbentuk dengan parameter saat ini.")
+        else:
+            rules_tampil = format_rules_for_display(rules)
+            st.dataframe(rules_tampil, use_container_width=True)
+
+            excel_file = buat_file_excel(
+                rules_tampil=rules_tampil,
+                df_bersih=df_bersih,
+                transaksi=transaksi,
+                daftar_obat_unik=daftar_obat_unik
+            )
+
+            st.markdown(
+                """
+                <style>
+                div.stDownloadButton > button {
+                    background-color: #1f77d0;
+                    color: white;
+                    border: none;
+                    border-radius: 8px;
+                    padding: 0.6em 1.1em;
+                    font-weight: 600;
+                }
+
+                div.stDownloadButton > button:hover {
+                    background-color: #155fa8;
+                    color: white;
+                    border: none;
+                }
+                </style>
+                """,
+                unsafe_allow_html=True
+            )
+
+            st.download_button(
+                label="Download Hasil",
+                data=excel_file,
+                file_name="hasil_aturan_asosiasi_obat_bpjs_prb.xlsx",
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            )
+
+            st.subheader("Contoh Interpretasi Aturan")
+            interpretasi = buat_interpretasi_rules(rules, jumlah=5)
+
+            for kalimat in interpretasi:
+                st.markdown(kalimat)
+
+            st.subheader("Network Graph Aturan Asosiasi")
+            fig = buat_network_graph(rules)
+            st.pyplot(fig)
+
+    except Exception as e:
+        st.error("Terjadi error saat proses analisis.")
+        st.exception(e)
+
+else:
+    st.info("Silakan upload file data resep terlebih dahulu.")
