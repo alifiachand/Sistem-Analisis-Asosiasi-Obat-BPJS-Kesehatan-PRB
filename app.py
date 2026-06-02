@@ -572,27 +572,33 @@ def format_angka(nilai):
     return f"{nilai:.3f}".replace(".", ",")
 
 
-def buat_interpretasi_rules(rules, jumlah=5):
+def buat_interpretasi_rules(rules, total_resep, jumlah=3):
     rules_top = rules.head(jumlah).copy()
     hasil = []
 
     for i, row in rules_top.iterrows():
         antecedent = ", ".join(list(row["antecedents"]))
         consequent = ", ".join(list(row["consequents"]))
+
         support = format_persen(row["support"])
         confidence = format_persen(row["confidence"])
         lift = format_angka(row["lift"])
 
-        kalimat = (
-            f"**Aturan {i + 1}.** Apabila dokter meresepkan **{antecedent}**, "
-            f"maka **{consequent}** juga cenderung ikut diresepkan. "
-            f"Kombinasi ini muncul pada **{support}** dari seluruh resep. "
-            f"Dari seluruh resep yang berisi **{antecedent}**, sebanyak **{confidence}** "
-            f"juga berisi **{consequent}**. Nilai **lift {lift}** menunjukkan bahwa "
-            f"kedua obat memiliki kecenderungan muncul bersamaan lebih kuat dibandingkan kemunculan biasa."
-        )
+        jumlah_kombinasi = round(row["support"] * total_resep)
+        jumlah_antecedent = round(row["antecedent support"] * total_resep)
+        jumlah_confidence = round(row["confidence"] * jumlah_antecedent)
 
-        hasil.append(kalimat)
+        hasil.append({
+            "nomor": i + 1,
+            "antecedent": antecedent,
+            "consequent": consequent,
+            "support": support,
+            "confidence": confidence,
+            "lift": lift,
+            "jumlah_kombinasi": jumlah_kombinasi,
+            "jumlah_antecedent": jumlah_antecedent,
+            "jumlah_confidence": jumlah_confidence
+        })
 
     return hasil
 
@@ -1041,19 +1047,31 @@ if uploaded_file is not None:
         st.markdown("<div style='margin-bottom: 22px;'></div>", unsafe_allow_html=True)
 
         with st.expander("Lihat daftar obat unik"):
+            daftar_obat_unik_tampil = pd.DataFrame({"Nama Obat": daftar_obat_unik})
+            daftar_obat_unik_tampil.index = range(1, len(daftar_obat_unik_tampil) + 1)
+
             st.dataframe(
-                pd.DataFrame({"Nama Obat": daftar_obat_unik}),
+                daftar_obat_unik_tampil,
                 use_container_width=True
             )
 
         with st.expander("Lihat data mentah"):
-            st.dataframe(df_upload.head(100), use_container_width=True)
+            df_upload_tampil = df_upload.head(100).copy()
+            df_upload_tampil.index = range(1, len(df_upload_tampil) + 1)
+
+            st.dataframe(df_upload_tampil, use_container_width=True)
 
         with st.expander("Lihat data bersih"):
-            st.dataframe(df_bersih.head(100), use_container_width=True)
+            df_bersih_tampil = df_bersih.head(100).copy()
+            df_bersih_tampil.index = range(1, len(df_bersih_tampil) + 1)
+
+            st.dataframe(df_bersih_tampil, use_container_width=True)
 
         with st.expander("Lihat data transaksi"):
-            st.dataframe(transaksi.head(100), use_container_width=True)
+            transaksi_tampil = transaksi.head(100).copy()
+            transaksi_tampil.index = range(1, len(transaksi_tampil) + 1)
+
+            st.dataframe(transaksi_tampil, use_container_width=True)
 
         st.subheader("Hasil Aturan Asosiasi")
 
@@ -1067,6 +1085,7 @@ if uploaded_file is not None:
             st.warning("Tidak ada aturan asosiasi yang terbentuk dengan parameter saat ini.")
         else:
             rules_tampil = format_rules_for_display(rules)
+            rules_tampil.index = range(1, len(rules_tampil) + 1)
             st.dataframe(rules_tampil, use_container_width=True)
 
             excel_file = buat_file_excel(
@@ -1105,11 +1124,70 @@ if uploaded_file is not None:
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             )
 
-            st.subheader("Contoh Interpretasi Aturan")
-            interpretasi = buat_interpretasi_rules(rules, jumlah=5)
+            st.subheader("Interpretasi 3 Aturan Teratas")
 
-            for kalimat in interpretasi:
-                st.markdown(kalimat)
+            total_resep = transaksi["ID Resep"].nunique()
+            interpretasi = buat_interpretasi_rules(rules, total_resep=total_resep, jumlah=3)
+
+            st.markdown(
+                """
+                <style>
+                .interpretasi-card {
+                    background-color: #ffffff;
+                    color: #111827;
+                    border: 1px solid #d7eadc;
+                    border-left: 6px solid #2e9d57;
+                    border-radius: 12px;
+                    padding: 18px 22px;
+                    margin-bottom: 16px;
+                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+                }
+
+                .interpretasi-title {
+                    font-size: 17px;
+                    font-weight: 700;
+                    color: #111827;
+                    margin-bottom: 10px;
+                }
+
+                .interpretasi-card ul {
+                    margin-top: 8px;
+                    margin-bottom: 0px;
+                    padding-left: 22px;
+                }
+
+                .interpretasi-card li {
+                    margin-bottom: 7px;
+                    line-height: 1.55;
+                    font-size: 15px;
+                    color: #111827;
+                }
+
+                .interpretasi-card b {
+                    color: #111827;
+                }
+                </style>
+                """,
+                unsafe_allow_html=True
+            )
+
+            for item in interpretasi:
+                st.markdown(
+                    f"""
+                    <div class="interpretasi-card">
+                        <div class="interpretasi-title">
+                            Aturan {item["nomor"]}: IF {item["antecedent"]} THEN {item["consequent"]}
+                        </div>
+                        <ul>
+                            <li>Apabila dokter meresepkan <b>{item["antecedent"]}</b>, maka <b>{item["consequent"]}</b> juga cenderung ikut diresepkan.</li>
+                            <li>Muncul pada <b>{item["support"]}</b> (<b>{item["jumlah_kombinasi"]} resep</b>) dari seluruh resep.</li>
+                            <li>Dari <b>{item["jumlah_antecedent"]} resep</b> yang berisi <b>{item["antecedent"]}</b>, sebanyak <b>{item["confidence"]}</b> (<b>{item["jumlah_confidence"]} resep</b>) juga berisi <b>{item["consequent"]}</b>.</li>
+                            <li>Lift <b>{item["lift"]}</b> menunjukkan bahwa kedua obat memiliki kecenderungan muncul bersamaan lebih kuat dibandingkan kemunculan biasa.</li>
+                        </ul>
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
 
             st.subheader("Network Graph Aturan Asosiasi")
             fig = buat_network_graph(rules)
