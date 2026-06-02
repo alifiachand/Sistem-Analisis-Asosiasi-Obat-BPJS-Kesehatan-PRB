@@ -1124,7 +1124,7 @@ if uploaded_file is not None:
                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
             )
 
-            st.subheader("Interpretasi 3 Aturan Teratas")
+            st.subheader("Contoh Interpretasi 3 Aturan Asosiasi")
 
             total_resep = transaksi["ID Resep"].nunique()
             interpretasi = buat_interpretasi_rules(rules, total_resep=total_resep, jumlah=3)
