@@ -1136,6 +1136,13 @@ if uploaded_file is not None:
                     padding: 18px 22px;
                     margin-bottom: 16px;
                     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+                    transition: all 0.25s ease;
+                }
+
+                .interpretasi-card:hover {
+                    transform: translateY(-3px);
+                    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+                    border-color: #b8e3c3;
                 }
 
                 .interpretasi-title {
