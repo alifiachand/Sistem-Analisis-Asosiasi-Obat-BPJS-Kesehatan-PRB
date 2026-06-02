@@ -1181,10 +1181,10 @@ if uploaded_file is not None:
                             Aturan {item["nomor"]}: IF {item["antecedent"]} THEN {item["consequent"]}
                         </div>
                         <ul>
-                            <li>Apabila dokter meresepkan <b>{item["antecedent"]}</b>, maka <b>{item["consequent"]}</b> juga cenderung ikut diresepkan.</li>
-                            <li>Muncul pada <b>{item["support"]}</b> (<b>{item["jumlah_kombinasi"]} resep</b>) dari seluruh resep.</li>
-                            <li>Dari <b>{item["jumlah_antecedent"]} resep</b> yang berisi <b>{item["antecedent"]}</b>, sebanyak <b>{item["confidence"]}</b> (<b>{item["jumlah_confidence"]} resep</b>) juga berisi <b>{item["consequent"]}</b>.</li>
-                            <li>Lift <b>{item["lift"]}</b> menunjukkan bahwa kedua obat memiliki kecenderungan muncul bersamaan lebih kuat dibandingkan kemunculan biasa.</li>
+                            <li>Apabila dokter meresepkan {item["antecedent"]}, maka {item["consequent"]} juga cenderung ikut diresepkan.</li>
+                            <li>Muncul pada {item["support"]} ({item["jumlah_kombinasi"]} resep) dari seluruh resep.</li>
+                            <li>Dari {item["jumlah_antecedent"]} resep yang berisi {item["antecedent"]}, sebanyak {item["confidence"]} ({item["jumlah_confidence"]} resep) juga berisi {item["consequent"]}.</li>
+                            <li>Lift {item["lift"]} menunjukkan bahwa kedua obat memiliki kecenderungan muncul bersamaan lebih kuat dibandingkan kemunculan biasa.</li>
                         </ul>
                     </div>
                     """,
