@@ -12,9 +12,8 @@ from mlxtend.preprocessing import TransactionEncoder
 from mlxtend.frequent_patterns import fpgrowth, association_rules
 
 
-# =========================
-# KONFIGURASI APLIKASI
-# =========================
+# KONFIGURASI APLIKASI #
+
 
 st.set_page_config(
     page_title="Sistem Analisis Asosiasi Obat BPJS Kesehatan PRB",
@@ -61,9 +60,9 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# =========================
-# FUNGSI BANTUAN
-# =========================
+
+# FUNGSI BANTUAN #
+
 
 def trim_upper(x):
     x = "" if pd.isna(x) else str(x)
@@ -100,9 +99,9 @@ def baca_mapping(path="Mapping nama obat.xlsx"):
     return dict(zip(mapping["raw"], mapping["master"]))
 
 
-# =========================
-# PREPROCESSING SESUAI SPREADSHEET
-# =========================
+
+# PREPROCESSING #
+
 
 def proses_preprocessing(df):
     df = df.copy()
@@ -116,7 +115,7 @@ def proses_preprocessing(df):
     df = df[["ID Resep Asli", "Produk"]].copy()
     df = df.dropna(subset=["ID Resep Asli", "Produk"])
 
-    # 1. Penyeragaman ID Resep: R00001, R00002, dst
+    # 1. Standarisasi ID Resep: R00001, R00002, dst
     unique_ids = df["ID Resep Asli"].drop_duplicates().tolist()
     id_map = {
         old_id: f"R{i+1:05d}"
@@ -128,8 +127,7 @@ def proses_preprocessing(df):
     # Kolom B: Produk
     df["B_Produk"] = df["Produk"].astype(str)
 
-    # 1. Replace nama obat khusus sesuai tahap pertama preprocessing
-    # Produk di sebelah kiri diganti menjadi Nama Obat di sebelah kanan
+    # 1. Replace nama obat khusus
     replace_produk_awal = {
         "BPJS PRB GLIKLAZID TAB 80 MG 100S DEXA":
             "BPJS PRB GLICLAZIDE TAB 80 MG 100S DEXA",
@@ -177,7 +175,7 @@ def proses_preprocessing(df):
             "BPJS PRB TRIHEXYPHENIDYL HYDROCHLORIDE HOLI 2MG TAB 100S",
     }
 
-    # normalisasi key agar tetap cocok walaupun kapital/spasi berbeda
+    # Normalisasi key agar tetap cocok walaupun kapital/spasi berbeda
     replace_produk_awal = {
         trim_upper(k): v for k, v in replace_produk_awal.items()
     }
@@ -186,12 +184,12 @@ def proses_preprocessing(df):
         lambda x: replace_produk_awal.get(trim_upper(x), x)
     )
 
-    # C: tanpa bpjs prb
+    # Hapus BPJS PRB
     df["C_tanpa_bpjs_prb"] = df["B_Produk_Replace"].apply(
         lambda x: trim_upper(str(x).replace("BPJS PRB ", ""))
     )
 
-    # D: tanpa merk
+    # Hapus merek dagang
     def cleaning_d(x):
         hasil = x
         daftar_hapus = [
@@ -212,7 +210,7 @@ def proses_preprocessing(df):
 
     df["D_tanpa_merk"] = df["C_tanpa_bpjs_prb"].apply(cleaning_d)
 
-    # E: cleaning 1, ambil isi tanda kurung kalau ada
+    # Ambil isi tanda kurung kalau ada
     def cleaning_e(x):
         x = str(x)
         if "(" in x and ")" in x and x.find("(") < x.find(")"):
@@ -223,14 +221,14 @@ def proses_preprocessing(df):
 
     df["E_cleaning_1"] = df["D_tanpa_merk"].apply(cleaning_e)
 
-    # F: cleaning 2
+    # Hapus merek yang masih lolos
     def cleaning_f(x):
         pattern = r"5S|1S|TURBUHALER|DISKUS|DOSIS|INHALATION|INHALER|CAPS|INSULIN|BAYER|YARINDO|MITSUBISHI|FERRON PAR PHARMACEUTICALS"
         return trim_text(regex_replace(x, pattern, ""))
 
     df["F_cleaning_2"] = df["E_cleaning_1"].apply(cleaning_f)
 
-    # G: cleaning 3
+    # Hapus jumlah strip
     def cleaning_g(x):
         x = str(x).replace(",", ".")
         x = regex_replace(x, r"\b(BESILATE|FUMARATE)\b", "")
@@ -241,7 +239,7 @@ def proses_preprocessing(df):
 
     df["G_cleaning_3"] = df["F_cleaning_2"].apply(cleaning_g)
 
-    # H: cleaning 4
+    # Hapus merek yang masih lolos
     def cleaning_h(x):
         x = regex_replace(x, r"\b\d+\s*S\b", "")
         x = regex_replace(x, r"\b(TEMPO SCAN|MERSI|IKAPHARMINDO|IMFARMIND)\b", "")
@@ -249,12 +247,12 @@ def proses_preprocessing(df):
 
     df["H_cleaning_4"] = df["G_cleaning_3"].apply(cleaning_h)
 
-    # I: HAPUS LET 1
+    # Hapus LET 1
     df["I_hapus_let_1"] = df["H_cleaning_4"].apply(
         lambda x: trim_text(regex_replace(x, r"(MG|MCG|ML)LET\b", r"\1"))
     )
 
-    # J: HAPUS LET 2
+    # Hapus LET 2
     def cleaning_j(x):
         x = trim_text(x)
         if x == "PHENOBARBITALLET":
@@ -265,7 +263,7 @@ def proses_preprocessing(df):
 
     df["J_hapus_let_2"] = df["I_hapus_let_1"].apply(cleaning_j)
 
-    # L: hapus obat di sistem lama
+    # Hapus obat tanpa dosis
     def cleaning_l(x):
         daftar = ["PIOGLITAZONE", "SPIRONOLACTONE", "HALOPERIDOL", "ATORVASTATIN"]
         ada_obat = any(re.search(rf"^{obat}\b", str(x)) for obat in daftar)
@@ -276,12 +274,12 @@ def proses_preprocessing(df):
 
     df["L_hapus_obat_sistem_lama"] = df["J_hapus_let_2"].apply(cleaning_l)
 
-    # M: cek dosis
+    # Cek dosis
     df["M_cek_dosis"] = df["J_hapus_let_2"].apply(
         lambda x: "MASIH TANPA DOSIS" if not bool(re.search(r"\d", str(x))) else "AMAN"
     )
 
-    # N: kasih dosis
+    # Kasih dosis
     def cleaning_n(x):
         x = trim_text(x)
 
@@ -305,14 +303,14 @@ def proses_preprocessing(df):
 
     df["N_kasih_dosis"] = df["J_hapus_let_2"].apply(cleaning_n)
 
-    # P: obat awal
+    # Obat hasil cleaning 1
     df["P_obat_awal"] = df["N_kasih_dosis"]
 
-    # Q: hapus merk yang masih lolos
+    # Hapus merk yang masih lolos
     def cleaning_q(x):
         x = str(x).upper()
 
-        # kasih spasi antara angka dan satuan
+        # Kasih spasi antara angka dan satuan
         x = regex_replace(x, r"(\d)(MG|MCG)\b", r"\1 \2")
 
         pattern_merk = (
@@ -329,7 +327,7 @@ def proses_preprocessing(df):
 
     df["Q_hapus_merk"] = df["P_obat_awal"].apply(cleaning_q)
 
-    # R: amlodipin 10 mg 10 mg
+    # amlodipin 10 mg 10 mg
     def cleaning_r(x):
         x = trim_text(x)
         if x == "AMLODIPINE 10 MG 10 MG":
@@ -340,38 +338,38 @@ def proses_preprocessing(df):
 
     df["R_amlodipin_dobel"] = df["Q_hapus_merk"].apply(cleaning_r)
 
-    # S: ASETOSAL 80 MG 2
+    # ASETOSAL 80 MG 2
     df["S_asetosal_80_mg_2"] = df["R_amlodipin_dobel"].apply(
         lambda x: "ASETOSAL 80 MG" if trim_text(x) == "ASETOSAL 80 MG 2" else x
     )
 
-    # T: FENOTEROL 100 MCG 200 100 MCG
+    # FENOTEROL 100 MCG 200 100 MCG
     df["T_fenoterol"] = df["S_asetosal_80_mg_2"].apply(
         lambda x: "FENOTEROL HYDROBROMIDE 100 MCG"
         if trim_text(x) == "FENOTEROL HYDROBROMIDE 100 MCG 200 100 MCG"
         else x
     )
 
-    # U: ISOSORBIDE DINITRATE NIRMALA10 MG
+    # ISOSORBIDE DINITRATE NIRMALA10 MG
     df["U_nirmala10"] = df["T_fenoterol"].apply(
         lambda x: str(x).replace("NIRMALA10", "NIRMALA 10")
         if "NIRMALA10" in str(x)
         else x
     )
 
-    # V: HAPUS NIRMALA
+    # HAPUS NIRMALA
     df["V_hapus_nirmala"] = df["U_nirmala10"].apply(
         lambda x: trim_text(str(x).replace("NIRMALA ", ""))
         if "NIRMALA 10" in str(x)
         else x
     )
 
-    # W: HAPUS SULFATE
+    # HAPUS SULFATE
     df["W_hapus_sulfate"] = df["V_hapus_nirmala"].apply(
         lambda x: trim_text(regex_replace(x, r"SALBUTAMOL\s+SULFATE", "SALBUTAMOL"))
     )
 
-    # X: HAPUS SYR
+    # HAPUS SYR
     def cleaning_x(x):
         x = trim_text(x)
         if x == "VALPROIC ACID SYR 250 MG + 5ML":
@@ -380,7 +378,7 @@ def proses_preprocessing(df):
 
     df["X_hapus_syr"] = df["W_hapus_sulfate"].apply(cleaning_x)
 
-    # Y: ganti adalat oros
+    # ganti adalat oros
     def cleaning_y(x):
         x = trim_text(x)
         if x == "ADALAT OROS 30 MG":
@@ -389,7 +387,7 @@ def proses_preprocessing(df):
 
     df["Y_ganti_adalat_oros"] = df["X_hapus_syr"].apply(cleaning_y)
 
-    # Z: ganti acetosal
+    # ganti acetosal
     def cleaning_z(x):
         x = trim_text(x)
         if "ASETOSAL" in x or "ACETYLSALICYLIC ACID" in x:
@@ -398,7 +396,7 @@ def proses_preprocessing(df):
 
     df["Z_ganti_acetosal"] = df["Y_ganti_adalat_oros"].apply(cleaning_z)
 
-    # AA: MR gliclazide
+    # MR gliclazide
     def cleaning_aa(x):
         x = trim_text(x)
 
@@ -412,7 +410,7 @@ def proses_preprocessing(df):
 
     df["AA_mr_gliclazide"] = df["Z_ganti_acetosal"].apply(cleaning_aa)
 
-    # AB: Lispro tambah mix
+    # Lispro tambah mix
     def cleaning_ab(row):
         produk_awal = str(row["B_Produk"]).upper()
         hasil = row["AA_mr_gliclazide"]
@@ -425,7 +423,7 @@ def proses_preprocessing(df):
 
     df["AB_lispro_tambah_mix"] = df.apply(cleaning_ab, axis=1)
 
-    # AC: hapus angka akhir di theophylline
+    # hapus angka akhir di theophylline
     def cleaning_ac(x):
         x = trim_text(x)
         if "THEOPHYLLINE" in x:
@@ -434,7 +432,7 @@ def proses_preprocessing(df):
 
     df["AC_hapus_2_theo"] = df["AB_lispro_tambah_mix"].apply(cleaning_ac)
 
-    # AD: ganti budesonide
+    # ganti budesonide
     df["AD_ganti_budesonide"] = df["AC_hapus_2_theo"].apply(
         lambda x: str(x).replace(
             "BUDESONIDE + 160 + 4.5",
@@ -488,9 +486,8 @@ def proses_preprocessing(df):
     return df, df_bersih, transaksi
 
 
-# =========================
-# FP-GROWTH DAN ASSOCIATION RULES
-# =========================
+# FP-GROWTH DAN ASSOCIATION RULES #
+
 
 def proses_arm(transaksi, min_support=0.026, min_confidence=0.20):
     list_transaksi = transaksi["Nama Obat"].apply(
@@ -620,9 +617,8 @@ def buat_file_excel(rules_tampil, df_bersih, transaksi, daftar_obat_unik):
     return output
 
 
-# =========================
-# NETWORK GRAPH
-# =========================
+# NETWORK GRAPH #
+
 
 def buat_network_graph(rules2):
     rules2 = rules2.copy()
@@ -935,9 +931,8 @@ def buat_network_graph(rules2):
     return fig
 
 
-# =========================
-# TAMPILAN STREAMLIT
-# =========================
+# TAMPILAN STREAMLIT #
+
 
 uploaded_file = st.file_uploader(
     "Upload file data resep",
