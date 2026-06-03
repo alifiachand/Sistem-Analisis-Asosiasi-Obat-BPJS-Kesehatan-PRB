@@ -672,9 +672,9 @@ def tampilkan_keterangan_network(rules):
     st.markdown(
         """
 **Simbol:**
-- Lingkaran biru menunjukkan obat dalam resep.
+- Lingkaran biru menunjukkan obat pemicu (antecedent).
 - Kotak oranye menunjukkan kode aturan asosiasi, misalnya R1, R2, dan seterusnya.
-- Lingkaran abu-abu menunjukkan obat yang ikut muncul.
+- Lingkaran abu-abu menunjukkan obat yang ikut muncul (consequent).
 - Garis putus-putus menunjukkan arah dari obat dalam resep menuju kode aturan.
 - Garis penuh menunjukkan arah dari kode aturan menuju obat yang ikut muncul.
 
