@@ -1254,7 +1254,7 @@ if uploaded_file is not None:
                             <li>Apabila dokter meresepkan {item["antecedent"]}, maka {item["consequent"]} juga cenderung ikut diresepkan.</li>
                             <li>Muncul pada {item["support"]} ({item["jumlah_kombinasi"]} resep) dari seluruh resep.</li>
                             <li>Dari {item["jumlah_antecedent"]} resep yang berisi {item["antecedent"]}, sebanyak {item["confidence"]} ({item["jumlah_confidence"]} resep) juga berisi {item["consequent"]}.</li>
-                            <li>Lift {item["lift"]} menunjukkan bahwa kedua obat memiliki kecenderungan muncul bersamaan lebih kuat dibandingkan kemunculan biasa.</li>
+                            <li>Lift {item["lift"]} menunjukkan bahwa kedua obat memiliki kecenderungan muncul bersamaan {item["lift"]} kali lebih kuat dibandingkan kemunculan biasa.</li>
                         </ul>
                     </div>
                     """,
