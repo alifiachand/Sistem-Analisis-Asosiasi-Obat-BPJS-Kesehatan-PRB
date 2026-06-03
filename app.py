@@ -667,116 +667,36 @@ def ambil_warna_consequent(rules):
 def tampilkan_keterangan_network(rules):
     warna_map = ambil_warna_consequent(rules)
 
-    legend_warna = ""
-
-    for obat, warna in warna_map.items():
-        legend_warna += f"""
-        <div class="legend-item">
-            <span class="legend-color" style="background-color: {warna};"></span>
-            <span>{obat}</span>
-        </div>
-        """
+    st.markdown("**Keterangan Network Graph**")
 
     st.markdown(
-        f"""
-        <style>
-        .network-info-card {{
-            background-color: #ffffff;
-            color: #111827;
-            border: 1px solid #d7eadc;
-            border-left: 6px solid #2e9d57;
-            border-radius: 12px;
-            padding: 18px 22px;
-            margin-bottom: 18px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-        }}
+        """
+**Simbol:**
+- Lingkaran biru menunjukkan obat dalam resep.
+- Kotak oranye menunjukkan kode aturan asosiasi, misalnya R1, R2, dan seterusnya.
+- Lingkaran abu-abu menunjukkan obat yang ikut muncul.
+- Garis putus-putus menunjukkan arah dari obat dalam resep menuju kode aturan.
+- Garis penuh menunjukkan arah dari kode aturan menuju obat yang ikut muncul.
 
-        .network-info-title {{
-            font-size: 17px;
-            font-weight: 700;
-            margin-bottom: 10px;
-            color: #111827;
-        }}
-
-        .network-info-card ul {{
-            margin-top: 6px;
-            margin-bottom: 14px;
-            padding-left: 22px;
-        }}
-
-        .network-info-card li {{
-            margin-bottom: 6px;
-            line-height: 1.55;
-            font-size: 15px;
-            color: #111827;
-        }}
-
-        .legend-wrapper {{
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px 18px;
-            margin-top: 8px;
-        }}
-
-        .legend-item {{
-            display: flex;
-            align-items: center;
-            gap: 7px;
-            font-size: 15px;
-            color: #111827;
-        }}
-
-        .legend-color {{
-            width: 16px;
-            height: 16px;
-            display: inline-block;
-            border-radius: 4px;
-            border: 1px solid #9ca3af;
-        }}
-
-        .node-blue {{
-            color: #111827;
-            font-weight: 600;
-        }}
-
-        .node-gray {{
-            color: #111827;
-            font-weight: 600;
-        }}
-
-        .node-orange {{
-            color: #111827;
-            font-weight: 600;
-        }}
-        </style>
-
-        <div class="network-info-card">
-            <div class="network-info-title">Keterangan Network Graph</div>
-
-            <b>Simbol:</b>
-            <ul>
-                <li>Lingkaran biru menunjukkan obat pemicu (antecedent).</li>
-                <li>Kotak oranye menunjukkan kode aturan asosiasi, misalnya R1, R2, dan seterusnya.</li>
-                <li>Lingkaran abu-abu menunjukkan obat yang ikut muncul (consequent).</li>
-                <li>Garis putus-putus menunjukkan arah dari obat pemicu menuju kode aturan.</li>
-                <li>Garis penuh menunjukkan arah dari kode aturan menuju obat yang ikut muncul.</li>
-            </ul>
-
-            <b>Cara baca:</b>
-            <ul>
-                <li>Network graph dibaca dari kiri ke tengah lalu ke kanan.</li>
-                <li>Contoh: obat A → R1 → obat B berarti apabila dokter meresepkan obat A, maka obat B cenderung ikut diresepkan.</li>
-                <li>Warna garis menunjukkan obat tujuan atau obat yang ikut muncul pada aturan tersebut.</li>
-            </ul>
-
-            <b>Keterangan warna garis:</b>
-            <div class="legend-wrapper">
-                {legend_warna}
-            </div>
-        </div>
-        """,
-        unsafe_allow_html=True
+**Cara baca:**
+- Network graph dibaca dari kiri ke tengah lalu ke kanan.
+- Contoh: obat A → R1 → obat B berarti apabila dokter meresepkan obat A, maka obat B cenderung ikut diresepkan.
+- Warna garis menunjukkan obat tujuan atau obat yang ikut muncul pada aturan tersebut.
+        """
     )
+
+    st.markdown("**Keterangan warna garis:**")
+
+    for obat, warna in warna_map.items():
+        st.markdown(
+            f"""
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
+                <span style="background-color:{warna}; width:14px; height:14px; display:inline-block; border-radius:3px; border:1px solid #999;"></span>
+                <span>{obat}</span>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
 
 def buat_network_graph(rules2):
     rules2 = rules2.copy()
