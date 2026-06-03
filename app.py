@@ -530,8 +530,8 @@ def format_rules_for_display(rules):
     tampil = tampil[kolom]
 
     tampil = tampil.rename(columns={
-        "antecedents": "Obat Pemicu (antecedent)",
-        "consequents": "Obat yang Ikut Muncul (consequent)",
+        "antecedents": "Obat Pemicu (Antecedent)",
+        "consequents": "Obat yang Ikut Muncul (Consequent)",
         "support": "Support",
         "confidence": "Confidence",
         "lift": "Lift"
@@ -672,9 +672,9 @@ def tampilkan_keterangan_network(rules):
     st.markdown(
         """
 **Simbol:**
-- Lingkaran biru menunjukkan obat pemicu (antecedent).
+- Lingkaran biru menunjukkan obat pemicu (*antecedent*).
 - Kotak oranye menunjukkan kode aturan asosiasi, misalnya R1, R2, dan seterusnya.
-- Lingkaran abu-abu menunjukkan obat yang ikut muncul (consequent).
+- Lingkaran abu-abu menunjukkan obat yang ikut muncul (*consequent*).
 - Garis putus-putus menunjukkan arah dari obat dalam resep menuju kode aturan.
 - Garis penuh menunjukkan arah dari kode aturan menuju obat yang ikut muncul.
 
