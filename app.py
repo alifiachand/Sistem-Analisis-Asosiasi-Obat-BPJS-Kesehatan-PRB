@@ -697,6 +697,22 @@ def tampilkan_keterangan_network(rules):
             """,
             unsafe_allow_html=True
         )
+def ambil_contoh_baca_network(rules2, jumlah=3):
+    rules2 = rules2.copy().reset_index(drop=True)
+    hasil = []
+
+    for i, row in rules2.head(jumlah).iterrows():
+        rule_id = f"R{i + 1}"
+        antecedent = ", ".join(list(row["antecedents"]))
+        consequent = ", ".join(list(row["consequents"]))
+
+        hasil.append({
+            "rule_id": rule_id,
+            "antecedent": antecedent,
+            "consequent": consequent
+        })
+
+    return hasil
 
 def buat_network_graph(rules2):
     rules2 = rules2.copy()
@@ -1265,6 +1281,71 @@ if uploaded_file is not None:
             tampilkan_keterangan_network(rules)
             fig = buat_network_graph(rules)
             st.pyplot(fig)
+
+            st.subheader("Contoh Cara Membaca Network Graph")
+
+            contoh_baca_network = ambil_contoh_baca_network(rules, jumlah=3)
+
+            st.markdown(
+                """
+                <style>
+                .baca-network-card {
+                    background-color: #ffffff;
+                    color: #111827;
+                    border: 1px solid #d7eadc;
+                    border-left: 6px solid #2e9d57;
+                    border-radius: 12px;
+                    padding: 18px 22px;
+                    margin-bottom: 16px;
+                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+                    transition: all 0.25s ease;
+                }
+
+                .baca-network-card:hover {
+                    transform: translateY(-3px);
+                    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+                    border-color: #b8e3c3;
+                }
+
+                .baca-network-title {
+                    font-size: 17px;
+                    font-weight: 700;
+                    color: #111827;
+                    margin-bottom: 10px;
+                }
+
+                .baca-network-card ul {
+                    margin-top: 8px;
+                    margin-bottom: 0px;
+                    padding-left: 22px;
+                }
+
+                .baca-network-card li {
+                    margin-bottom: 7px;
+                    line-height: 1.55;
+                    font-size: 15px;
+                    color: #111827;
+                }
+                </style>
+                """,
+                unsafe_allow_html=True
+            )
+
+            for item in contoh_baca_network:
+                st.markdown(
+                    f"""
+                    <div class="baca-network-card">
+                        <div class="baca-network-title">
+                            Aturan {item["rule_id"]}: IF {item["antecedent"]} THEN {item["consequent"]}
+                        </div>
+                        <ul>
+                            <li>Pada {item["rule_id"]}, garis putus-putus berasal dari {item["antecedent"]} menuju {item["rule_id"]}, kemudian garis lurus dari {item["rule_id"]} mengarah ke {item["consequent"]}.</li>
+                            <li>Dengan demikian, {item["rule_id"]} dibaca sebagai: apabila dokter meresepkan {item["antecedent"]}, maka {item["consequent"]} cenderung ikut diresepkan.</li>
+                        </ul>
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
 
     except Exception as e:
         st.error("Terjadi error saat proses analisis.")
