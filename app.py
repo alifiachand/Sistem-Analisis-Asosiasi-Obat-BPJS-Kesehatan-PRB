@@ -698,13 +698,76 @@ def tampilkan_keterangan_network(rules):
             unsafe_allow_html=True
         )
 def ambil_contoh_baca_network(rules2, jumlah=3):
-    rules2 = rules2.copy().reset_index(drop=True)
+    rules2 = rules2.copy()
+
+    rules2["ant_list"] = rules2["antecedents"].apply(
+        lambda x: list(x) if isinstance(x, (list, tuple, set, frozenset)) else [x]
+    )
+
+    rules2["con_list"] = rules2["consequents"].apply(
+        lambda x: list(x) if isinstance(x, (list, tuple, set, frozenset)) else [x]
+    )
+
+    rules2["con_str"] = rules2["con_list"].apply(lambda x: x[0] if len(x) > 0 else "")
+
+    right_order = [
+        "glimepiride 2 mg",
+        "metformin 500 mg",
+        "candesartan 8 mg",
+        "acetylsalicylic acid 80 mg",
+        "amlodipine 10 mg",
+        "bisoprolol 2,5 mg",
+        "candesartan 16 mg"
+    ]
+
+    drug_order = [
+        "glimepiride 1 mg",
+        "glimepiride 2 mg",
+        "furosemide 40 mg",
+        "nifedipine 30 mg",
+        "clopidogrel 75 mg",
+        "bisoprolol 5 mg",
+        "metformin 500 mg",
+        "candesartan 8 mg",
+        "acetylsalicylic acid 80 mg",
+        "amlodipine 10 mg",
+        "bisoprolol 2,5 mg",
+        "candesartan 16 mg"
+    ]
+
+    all_ants = sorted(set(a for ants in rules2["ant_list"] for a in ants))
+    all_cons = sorted(set(c for cons in rules2["con_list"] for c in cons))
+    all_drugs = sorted(set(all_ants + all_cons))
+
+    for d in all_drugs:
+        if d not in drug_order:
+            drug_order.append(d)
+
+    for d in all_cons:
+        if d not in right_order:
+            right_order.append(d)
+
+    drug_rank = {drug: i for i, drug in enumerate(drug_order)}
+    right_rank = {drug: i for i, drug in enumerate(right_order)}
+
+    def avg_ant_rank(ants):
+        ranks = [drug_rank.get(a, 999) for a in ants]
+        return np.mean(ranks) if len(ranks) > 0 else 999
+
+    rules2["avg_ant_rank"] = rules2["ant_list"].apply(avg_ant_rank)
+    rules2["con_rank"] = rules2["con_str"].apply(lambda x: right_rank.get(x, 999))
+
+    top_rules = rules2.sort_values(
+        by=["con_rank", "avg_ant_rank", "confidence", "lift"],
+        ascending=[True, True, False, False]
+    ).reset_index(drop=True)
+
     hasil = []
 
-    for i, row in rules2.head(jumlah).iterrows():
+    for i, row in top_rules.head(jumlah).iterrows():
         rule_id = f"R{i + 1}"
-        antecedent = ", ".join(list(row["antecedents"]))
-        consequent = ", ".join(list(row["consequents"]))
+        antecedent = ", ".join(row["ant_list"])
+        consequent = ", ".join(row["con_list"])
 
         hasil.append({
             "rule_id": rule_id,
