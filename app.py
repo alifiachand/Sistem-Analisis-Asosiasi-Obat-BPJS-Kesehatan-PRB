@@ -676,12 +676,12 @@ def tampilkan_keterangan_network(rules):
 - Kotak oranye menunjukkan kode aturan asosiasi, misalnya R1, R2, dan seterusnya.
 - Lingkaran abu-abu menunjukkan obat yang ikut muncul (*consequent*).
 - Garis putus-putus menunjukkan arah dari obat dalam resep menuju kode aturan.
-- Garis penuh menunjukkan arah dari kode aturan menuju obat yang ikut muncul.
+- Garis lurus menunjukkan arah dari kode aturan menuju obat yang ikut muncul.
+- Warna garis menunjukkan obat tujuan atau obat yang ikut muncul pada aturan tersebut.
 
 **Cara baca:**
-- Network graph dibaca dari kiri ke tengah lalu ke kanan.
-- Contoh: obat A → R1 → obat B berarti apabila dokter meresepkan obat A, maka obat B cenderung ikut diresepkan.
-- Warna garis menunjukkan obat tujuan atau obat yang ikut muncul pada aturan tersebut.
+- Network graph dibaca dari garis putus-putus menuju ke kotak aturan, kemudian dari kotak aturan mengikuti garis lurus menuju ke obat tujuan.
+- Contoh: garis putus-putus berasal dari obat A → R1 → garis lurus menuju ke obat B, berarti apabila dokter meresepkan obat A, maka obat B cenderung ikut diresepkan.
         """
     )
 
