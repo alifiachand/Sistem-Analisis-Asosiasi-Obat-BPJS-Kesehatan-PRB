@@ -1119,17 +1119,17 @@ st.markdown(
     div[data-testid="stVerticalBlockBorderWrapper"] {
         border: 1.5px solid rgba(120, 120, 120, 0.42) !important;
         border-radius: 22px !important;
-        padding: 30px 32px 34px 32px !important;
+        padding: 24px 28px 26px 28px !important;
         background-color: var(--secondary-background-color) !important;
-        margin-top: 20px !important;
-        margin-bottom: 28px !important;
+        margin-top: 16px !important;
+        margin-bottom: 20px !important;
     }
 
     .section-title {
         font-size: 24px;
         font-weight: 850;
         color: var(--text-color) !important;
-        margin-bottom: 28px;
+        margin-bottom: 22px;
         text-transform: uppercase;
         letter-spacing: 0.3px;
         line-height: 1.25;
@@ -1143,8 +1143,8 @@ st.markdown(
         font-size: 18px;
         font-weight: 750;
         color: var(--text-color) !important;
-        margin-top: 16px;
-        margin-bottom: 14px;
+        margin-top: 10px;
+        margin-bottom: 10px;
         line-height: 1.35;
         padding: 0;
         border-left: none;
@@ -1201,8 +1201,8 @@ st.markdown(
     }
 
     div[data-testid="stDataFrame"] {
-        margin-top: 10px !important;
-        margin-bottom: 14px !important;
+        margin-top: 8px !important;
+        margin-bottom: 8px !important;
     }
 
     /* ====== CARD INTERPRETASI DAN CARA BACA ====== */
@@ -1213,13 +1213,12 @@ st.markdown(
         border: 1px solid rgba(46, 157, 87, 0.26);
         border-left: 6px solid #2e9d57;
         border-radius: 14px;
-        padding: 24px 28px;
+        padding: 20px 24px;
         margin-top: 6px;
-        margin-bottom: 18px;
+        margin-bottom: 12px;
         box-shadow: 0 3px 10px rgba(0, 0, 0, 0.07);
         transition: all 0.25s ease;
     }
-
     .interpretasi-card:hover,
     .baca-network-card:hover {
         transform: translateY(-3px);
@@ -1303,8 +1302,8 @@ st.markdown(
 
     /* ====== TOMBOL DOWNLOAD ====== */
     div.stDownloadButton {
-        margin-top: 6px !important;
-        margin-bottom: 10px !important;
+        margin-top: 2px !important;
+        margin-bottom: 4px !important;
     }
 
     div.stDownloadButton > button {
@@ -1464,7 +1463,7 @@ if uploaded_file is not None:
                     mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                 )
 
-                st.markdown("<div style='height: 8px;'></div>", unsafe_allow_html=True)
+                st.markdown("<div style='height: 2px;'></div>", unsafe_allow_html=True)
                 st.markdown('<div class="subsection-title">Contoh Interpretasi 3 Aturan Asosiasi</div>', unsafe_allow_html=True)
 
                 interpretasi = buat_interpretasi_rules(rules, total_resep=total_resep, jumlah=3)
