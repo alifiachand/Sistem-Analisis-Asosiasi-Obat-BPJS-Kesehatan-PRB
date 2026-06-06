@@ -1078,7 +1078,8 @@ if uploaded_file is not None:
         daftar_obat_unik = hitung_obat_unik_dari_transaksi(transaksi)
         jumlah_obat_unik_transaksi = len(daftar_obat_unik)
 
-        st.subheader("Ringkasan Data")
+        with st.container(border=True):
+            st.subheader("Ringkasan Data")
 
         st.markdown(
             """
@@ -1192,7 +1193,11 @@ if uploaded_file is not None:
 
             st.dataframe(transaksi_tampil, use_container_width=True)
 
-        st.subheader("Hasil Aturan Asosiasi")
+        st.markdown("<br>", unsafe_allow_html=True)
+
+        with st.container(border=True):
+            st.subheader("Model Prediksi")
+            st.markdown("#### Hasil Aturan Asosiasi")
 
         frequent_itemsets, rules = proses_arm(
             transaksi,
@@ -1314,11 +1319,17 @@ if uploaded_file is not None:
                     unsafe_allow_html=True
                 )
 
-            st.subheader("Network Graph Aturan Asosiasi")
-            fig = buat_network_graph(rules)
-            st.pyplot(fig)
+            st.markdown("<br>", unsafe_allow_html=True)
 
-            st.subheader("Contoh Cara Membaca Network Graph")
+            with st.container(border=True):
+                st.subheader("Visualisasi")
+
+                st.markdown("#### Network Graph Aturan Asosiasi")
+                fig = buat_network_graph(rules)
+                st.pyplot(fig)
+
+                st.markdown("<br>", unsafe_allow_html=True)
+                st.markdown("#### Contoh Cara Membaca Network Graph")
 
             contoh_baca_network = ambil_contoh_baca_network(rules, jumlah=3)
 
