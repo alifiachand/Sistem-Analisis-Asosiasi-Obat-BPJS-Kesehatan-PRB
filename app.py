@@ -1117,26 +1117,26 @@ st.markdown(
     <style>
     /* ====== PANEL UTAMA ====== */
     div[data-testid="stVerticalBlockBorderWrapper"] {
-        border: 1.5px solid rgba(120, 120, 120, 0.42) !important;
-        border-radius: 22px !important;
-        padding: 24px 28px 26px 28px !important;
+        border: 1px solid rgba(120, 120, 120, 0.28) !important;
+        border-radius: 16px !important;
+        padding: 18px 20px 20px 20px !important;
         background-color: var(--secondary-background-color) !important;
-        margin-top: 16px !important;
-        margin-bottom: 20px !important;
+        margin-top: 14px !important;
+        margin-bottom: 16px !important;
     }
 
     .section-title {
-        font-size: 24px;
+        font-size: 23px;
         font-weight: 850;
         color: var(--text-color) !important;
-        margin-bottom: 22px;
+        margin-bottom: 18px;
         text-transform: uppercase;
         letter-spacing: 0.3px;
         line-height: 1.25;
-        padding: 10px 14px 10px 16px;
-        border-left: 6px solid #2e9d57;
-        border-radius: 10px;
-        background-color: rgba(46, 157, 87, 0.10);
+        padding: 9px 13px 9px 14px;
+        border-left: 5px solid #2e9d57;
+        border-radius: 9px;
+        background-color: rgba(46, 157, 87, 0.08);
     }
 
     .subsection-title {
@@ -1155,35 +1155,35 @@ st.markdown(
     /* ====== CARD RINGKASAN DATA ====== */
     .metric-card {
         background-color: var(--background-color);
-        border: 1px solid rgba(46, 157, 87, 0.26);
-        border-left: 6px solid #2e9d57;
-        border-radius: 14px;
-        padding: 22px 24px;
-        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.07);
-        height: 132px;
+        border: 1px solid rgba(120, 120, 120, 0.18);
+        border-left: 4px solid #2e9d57;
+        border-radius: 12px;
+        padding: 18px 20px;
+        box-shadow: none;
+        height: 112px;
         display: flex;
         flex-direction: column;
         justify-content: center;
-        margin-bottom: 18px;
+        margin-bottom: 12px;
     }
 
     .metric-label {
-        font-size: 13.5px;
+        font-size: 13px;
         color: var(--text-color);
-        opacity: 0.78;
-        margin-bottom: 12px;
+        opacity: 0.70;
+        margin-bottom: 8px;
         font-weight: 650;
-        min-height: 34px;
+        min-height: 28px;
         display: flex;
         align-items: center;
-        line-height: 1.45;
+        line-height: 1.35;
     }
 
     .metric-value {
-        font-size: 31px;
+        font-size: 29px;
         color: var(--text-color);
         font-weight: 800;
-        line-height: 1.15;
+        line-height: 1.1;
     }
 
     /* ====== EXPANDER DAN TABEL ====== */
@@ -1399,7 +1399,7 @@ if uploaded_file is not None:
                     unsafe_allow_html=True
                 )
 
-            st.markdown("<div style='height: 10px;'></div>", unsafe_allow_html=True)
+            st.markdown("<div style='height: 2px;'></div>", unsafe_allow_html=True)
 
             with st.expander("Lihat detail data"):
                 tab_obat, tab_mentah, tab_bersih, tab_transaksi = st.tabs([
