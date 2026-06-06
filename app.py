@@ -663,40 +663,6 @@ def ambil_warna_consequent(rules):
 
     return warna_map
 
-
-def tampilkan_keterangan_network(rules):
-    warna_map = ambil_warna_consequent(rules)
-
-    st.markdown("**Keterangan Network Graph**")
-
-    st.markdown(
-        """
-**Simbol:**
-- Lingkaran biru menunjukkan obat pemicu (*antecedent*).
-- Kotak oranye menunjukkan kode aturan asosiasi, misalnya R1, R2, dan seterusnya.
-- Lingkaran abu-abu menunjukkan obat yang ikut muncul (*consequent*).
-- Garis putus-putus menunjukkan arah dari obat dalam resep menuju kode aturan.
-- Garis lurus menunjukkan arah dari kode aturan menuju obat yang ikut muncul.
-- Warna garis menunjukkan obat tujuan atau obat yang ikut muncul pada aturan tersebut.
-
-**Cara baca:**
-- Network graph dibaca dari garis putus-putus menuju ke kotak aturan, kemudian dari kotak aturan mengikuti garis lurus menuju ke obat tujuan.
-- Contoh: garis putus-putus berasal dari obat A → R1 → garis lurus menuju ke obat B, berarti apabila dokter meresepkan obat A, maka obat B cenderung ikut diresepkan.
-        """
-    )
-
-    st.markdown("**Keterangan warna garis:**")
-
-    for obat, warna in warna_map.items():
-        st.markdown(
-            f"""
-            <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
-                <span style="background-color:{warna}; width:14px; height:14px; display:inline-block; border-radius:3px; border:1px solid #999;"></span>
-                <span>{obat}</span>
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
 def ambil_contoh_baca_network(rules2, jumlah=3):
     rules2 = rules2.copy()
 
@@ -1341,7 +1307,6 @@ if uploaded_file is not None:
                 )
 
             st.subheader("Network Graph Aturan Asosiasi")
-            tampilkan_keterangan_network(rules)
             fig = buat_network_graph(rules)
             st.pyplot(fig)
 
