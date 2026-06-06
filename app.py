@@ -1214,6 +1214,10 @@ st.markdown(
         line-height: 1.35 !important;
     }
 
+    div[data-testid="stExpander"] summary p {
+        font-weight: 800 !important;
+    }
+
     div[data-testid="stExpander"] summary:hover {
         opacity: 1 !important;
         color: var(--text-color) !important;
