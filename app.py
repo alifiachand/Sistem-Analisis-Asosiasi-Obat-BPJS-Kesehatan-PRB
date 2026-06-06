@@ -1128,15 +1128,15 @@ st.markdown(
     .section-title {
         font-size: 23px;
         font-weight: 850;
-        color: var(--text-color) !important;
+        color: #1f2a44 !important;
         margin-bottom: 18px;
         text-transform: uppercase;
         letter-spacing: 0.3px;
         line-height: 1.25;
-        padding: 9px 13px 9px 14px;
-        border-left: 5px solid #2e9d57;
-        border-radius: 9px;
-        background-color: rgba(46, 157, 87, 0.08);
+        padding: 11px 18px;
+        border-left: none;
+        border-radius: 10px;
+        background: linear-gradient(90deg, rgba(46, 157, 87, 0.14) 0%, rgba(46, 157, 87, 0.08) 45%, rgba(46, 157, 87, 0.04) 100%);
     }
 
     .subsection-title {
