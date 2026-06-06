@@ -1126,18 +1126,18 @@ st.markdown(
     }
 
     .section-title {
-        font-size: 23px;
+        font-size: 24px;
         font-weight: 850;
-        color: #ffffff !important;
+        color: var(--text-color) !important;
         margin-bottom: 26px;
         text-transform: uppercase;
-        letter-spacing: 0.4px;
+        letter-spacing: 0.3px;
         line-height: 1.25;
-        padding: 14px 18px;
-        border-left: 7px solid #14532d;
-        border-radius: 12px;
-        background: linear-gradient(90deg, #2e9d57 0%, #34a86a 45%, #6fcf97 100%);
-        box-shadow: 0 4px 12px rgba(46, 157, 87, 0.18);
+        padding: 0 0 12px 16px;
+        border-left: 6px solid #2e9d57;
+        border-bottom: 1px solid rgba(120, 120, 120, 0.22);
+        background: transparent;
+        box-shadow: none;
     }
 
     .subsection-title {
