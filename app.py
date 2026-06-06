@@ -1155,38 +1155,35 @@ st.markdown(
     /* ====== CARD RINGKASAN DATA ====== */
     .metric-card {
         background-color: var(--background-color);
-        border: 1px solid rgba(120, 120, 120, 0.16);
-        border-left: none;
+        border: 1px solid rgba(120, 120, 120, 0.18);
+        border-left: 4px solid #2e9d57;
         border-radius: 12px;
         padding: 18px 20px;
         box-shadow: none;
-        height: 108px;
+        height: 112px;
         display: flex;
         flex-direction: column;
         justify-content: center;
-        margin-bottom: 10px;
+        margin-bottom: 12px;
     }
 
     .metric-label {
         font-size: 13px;
         color: var(--text-color);
-        opacity: 0.62;
+        opacity: 0.70;
         margin-bottom: 8px;
         font-weight: 650;
-        min-height: 24px;
+        min-height: 28px;
         display: flex;
         align-items: center;
         line-height: 1.35;
     }
 
-    .metric-value::before {
-        content: "";
-        display: block;
-        width: 28px;
-        height: 3px;
-        background-color: #2e9d57;
-        border-radius: 999px;
-        margin-bottom: 10px;
+    .metric-value {
+        font-size: 29px;
+        color: var(--text-color);
+        font-weight: 800;
+        line-height: 1.1;
     }
 
     /* ====== EXPANDER DAN TABEL ====== */
