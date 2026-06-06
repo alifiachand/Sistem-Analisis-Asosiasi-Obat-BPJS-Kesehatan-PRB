@@ -537,9 +537,9 @@ def format_rules_for_display(rules):
         "lift": "Lift"
     })
 
-    tampil["Support"] = tampil["Support"].round(3)
-    tampil["Confidence"] = tampil["Confidence"].round(3)
-    tampil["Lift"] = tampil["Lift"].round(3)
+    tampil["Support"] = tampil["Support"].round(2)
+    tampil["Confidence"] = tampil["Confidence"].round(2)
+    tampil["Lift"] = tampil["Lift"].round(2)
 
     return tampil
 
@@ -561,24 +561,21 @@ def hitung_obat_unik_dari_transaksi(transaksi):
     return daftar_obat_unik
 
 
-def format_desimal(nilai, digit=2):
+def format_desimal(nilai, digit=1):
     teks = f"{nilai:.{digit}f}"
-
-    # hapus nol di belakang desimal
     teks = teks.rstrip("0").rstrip(".")
-
-    # ubah titik menjadi koma
     teks = teks.replace(".", ",")
-
     return teks
 
 
 def format_persen(nilai):
-    return format_desimal(nilai * 100, digit=2) + "%"
+    # Untuk interpretasi card: 1 angka di belakang koma
+    return format_desimal(nilai * 100, digit=1) + "%"
 
 
 def format_angka(nilai):
-    return format_desimal(nilai, digit=2)
+    # Untuk interpretasi card: 1 angka di belakang koma
+    return format_desimal(nilai, digit=1)
 
 
 def buat_interpretasi_rules(rules, total_resep, jumlah=3):
