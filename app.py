@@ -1279,6 +1279,24 @@ st.markdown(
         border-radius: 12px;
     }
 
+    /* ====== TAB DETAIL DATA ====== */
+    button[data-baseweb="tab"] {
+        color: var(--text-color) !important;
+    }
+
+    button[data-baseweb="tab"][aria-selected="true"] {
+        color: #1f77d0 !important;
+    }
+
+    button[data-baseweb="tab"][aria-selected="true"] p {
+        color: #1f77d0 !important;
+        font-weight: 700 !important;
+    }
+
+    div[data-baseweb="tab-highlight"] {
+        background-color: #1f77d0 !important;
+    }
+
     /* ====== TOMBOL DOWNLOAD ====== */
     div.stDownloadButton {
         margin-top: 8px !important;
