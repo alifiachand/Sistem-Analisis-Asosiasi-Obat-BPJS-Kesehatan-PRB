@@ -561,12 +561,24 @@ def hitung_obat_unik_dari_transaksi(transaksi):
     return daftar_obat_unik
 
 
+def format_desimal(nilai, digit=2):
+    teks = f"{nilai:.{digit}f}"
+
+    # hapus nol di belakang desimal
+    teks = teks.rstrip("0").rstrip(".")
+
+    # ubah titik menjadi koma
+    teks = teks.replace(".", ",")
+
+    return teks
+
+
 def format_persen(nilai):
-    return f"{nilai * 100:.1f}%".replace(".", ",")
+    return format_desimal(nilai * 100, digit=2) + "%"
 
 
 def format_angka(nilai):
-    return f"{nilai:.3f}".replace(".", ",")
+    return format_desimal(nilai, digit=2)
 
 
 def buat_interpretasi_rules(rules, total_resep, jumlah=3):
