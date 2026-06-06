@@ -1224,7 +1224,7 @@ st.markdown(
     .baca-network-card:hover {
         transform: translateY(-3px);
         box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
-        border-color: rgba(120, 120, 120, 0.45);
+        border-color: #6b7280(120, 120, 120, 0.45);
     }
 
     .interpretasi-title,
