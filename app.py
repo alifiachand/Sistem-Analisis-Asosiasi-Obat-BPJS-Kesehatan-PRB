@@ -1128,7 +1128,7 @@ st.markdown(
     .section-title {
         font-size: 23px;
         font-weight: 850;
-        color: #1f2a44 !important;
+        color: var(--text-color) !important;
         margin-bottom: 18px;
         text-transform: uppercase;
         letter-spacing: 0.3px;
@@ -1136,7 +1136,12 @@ st.markdown(
         padding: 11px 18px;
         border-left: none;
         border-radius: 10px;
-        background: linear-gradient(90deg, rgba(46, 157, 87, 0.14) 0%, rgba(46, 157, 87, 0.08) 45%, rgba(46, 157, 87, 0.04) 100%);
+        background: linear-gradient(
+            90deg,
+            rgba(46, 157, 87, 0.10) 0%,
+            rgba(46, 157, 87, 0.06) 55%,
+            rgba(46, 157, 87, 0.03) 100%
+        );
     }
 
     .subsection-title {
@@ -1210,20 +1215,21 @@ st.markdown(
     .baca-network-card {
         background-color: var(--background-color);
         color: var(--text-color);
-        border: 1px solid rgba(46, 157, 87, 0.26);
-        border-left: 6px solid #2e9d57;
-        border-radius: 14px;
+        border: 1px solid rgba(120, 120, 120, 0.18);
+        border-left: 4px solid #2e9d57;
+        border-radius: 12px;
         padding: 20px 24px;
         margin-top: 6px;
         margin-bottom: 12px;
-        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.07);
+        box-shadow: none;
         transition: all 0.25s ease;
     }
+
     .interpretasi-card:hover,
     .baca-network-card:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
-        border-color: #6b7280(120, 120, 120, 0.45);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.10);
+        border-color: rgba(120, 120, 120, 0.24);
     }
 
     .interpretasi-title,
