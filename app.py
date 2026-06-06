@@ -1179,11 +1179,14 @@ st.markdown(
         line-height: 1.35;
     }
 
-    .metric-value {
-        font-size: 28px;
-        color: var(--text-color);
-        font-weight: 800;
-        line-height: 1.1;
+    .metric-value::before {
+        content: "";
+        display: block;
+        width: 28px;
+        height: 3px;
+        background-color: #2e9d57;
+        border-radius: 999px;
+        margin-bottom: 10px;
     }
 
     /* ====== EXPANDER DAN TABEL ====== */
