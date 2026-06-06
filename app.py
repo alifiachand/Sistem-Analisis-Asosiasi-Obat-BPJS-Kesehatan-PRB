@@ -1101,17 +1101,17 @@ st.markdown(
     <style>
     /* Tampilan batas section utama */
     div[data-testid="stVerticalBlockBorderWrapper"] {
-        border: 1.5px solid #b8b8b8 !important;
+        border: 1.5px solid rgba(120, 120, 120, 0.55) !important;
         border-radius: 22px !important;
         padding: 22px 24px 26px 24px !important;
-        background-color: #fafafa !important;
+        background-color: var(--secondary-background-color) !important;
         margin-bottom: 26px !important;
     }
 
     .section-title {
         font-size: 24px;
         font-weight: 800;
-        color: #111827;
+        color: var(--text-color) !important;
         margin-bottom: 18px;
         text-transform: uppercase;
         letter-spacing: 0.2px;
@@ -1120,23 +1120,11 @@ st.markdown(
     .subsection-title {
         font-size: 19px;
         font-weight: 750;
-        color: #111827;
+        color: var(--text-color) !important;
         margin-top: 8px;
         margin-bottom: 14px;
     }
 
-    @media (prefers-color-scheme: dark) {
-        div[data-testid="stVerticalBlockBorderWrapper"] {
-            background-color: #111827 !important;
-            border-color: #374151 !important;
-        }
-
-        .section-title,
-        .subsection-title {
-            color: #f9fafb !important;
-        }
-    }
-    
     .metric-card {
         background-color: #ffffff;
         border: 1px solid #d7eadc;
