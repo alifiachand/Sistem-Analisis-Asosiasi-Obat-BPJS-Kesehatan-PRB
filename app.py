@@ -1126,24 +1126,25 @@ st.markdown(
     }
 
     .section-title {
-        font-size: 24px;
+        font-size: 23px;
         font-weight: 850;
-        color: var(--text-color) !important;
-        margin-bottom: 28px;
+        color: #ffffff !important;
+        margin-bottom: 26px;
         text-transform: uppercase;
-        letter-spacing: 0.3px;
+        letter-spacing: 0.4px;
         line-height: 1.25;
-        padding: 10px 14px 10px 16px;
-        border-left: 6px solid #2e9d57;
-        border-radius: 10px;
-        background-color: rgba(46, 157, 87, 0.10);
+        padding: 14px 18px;
+        border-left: 7px solid #14532d;
+        border-radius: 12px;
+        background: linear-gradient(90deg, #2e9d57 0%, #34a86a 45%, #6fcf97 100%);
+        box-shadow: 0 4px 12px rgba(46, 157, 87, 0.18);
     }
 
     .subsection-title {
         font-size: 18px;
         font-weight: 750;
         color: var(--text-color) !important;
-        margin-top: 18px;
+        margin-top: 16px;
         margin-bottom: 14px;
         line-height: 1.35;
         padding: 0;
