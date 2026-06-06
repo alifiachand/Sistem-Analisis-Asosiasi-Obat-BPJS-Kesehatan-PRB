@@ -1099,79 +1099,97 @@ def buat_network_graph(rules2):
 st.markdown(
     """
     <style>
-    /* Tampilan batas section utama */
+    /* ====== PANEL UTAMA ====== */
     div[data-testid="stVerticalBlockBorderWrapper"] {
         border: 1.5px solid rgba(120, 120, 120, 0.55) !important;
-        border-radius: 22px !important;
-        padding: 22px 24px 26px 24px !important;
+        border-radius: 24px !important;
+        padding: 34px 36px 38px 36px !important;
         background-color: var(--secondary-background-color) !important;
-        margin-bottom: 26px !important;
+        margin-top: 18px !important;
+        margin-bottom: 34px !important;
     }
 
     .section-title {
-        font-size: 24px;
+        font-size: 25px;
         font-weight: 800;
         color: var(--text-color) !important;
-        margin-bottom: 18px;
+        margin-bottom: 28px;
         text-transform: uppercase;
         letter-spacing: 0.2px;
+        line-height: 1.25;
     }
 
     .subsection-title {
-        font-size: 19px;
+        font-size: 20px;
         font-weight: 750;
         color: var(--text-color) !important;
-        margin-top: 8px;
-        margin-bottom: 14px;
+        margin-top: 18px;
+        margin-bottom: 22px;
+        line-height: 1.35;
     }
 
+    /* ====== CARD RINGKASAN DATA ====== */
     .metric-card {
         background-color: #ffffff;
         border: 1px solid #d7eadc;
         border-left: 6px solid #2e9d57;
-        border-radius: 12px;
-        padding: 18px 20px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-        height: 126px;
+        border-radius: 14px;
+        padding: 24px 26px;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.07);
+        height: 142px;
         display: flex;
         flex-direction: column;
         justify-content: center;
+        margin-bottom: 20px;
     }
 
     .metric-label {
         font-size: 14px;
         color: #4b5563;
-        margin-bottom: 10px;
+        margin-bottom: 16px;
         font-weight: 600;
-        min-height: 38px;
+        min-height: 36px;
         display: flex;
         align-items: center;
+        line-height: 1.45;
     }
 
     .metric-value {
         font-size: 34px;
         color: #111827;
         font-weight: 700;
-        line-height: 1;
+        line-height: 1.15;
     }
 
+    /* ====== EXPANDER DAN TABEL ====== */
+    div[data-testid="stExpander"] {
+        margin-bottom: 12px !important;
+    }
+
+    div[data-testid="stDataFrame"] {
+        margin-top: 8px !important;
+        margin-bottom: 22px !important;
+    }
+
+    /* ====== CARD INTERPRETASI DAN CARA BACA ====== */
     .interpretasi-card,
     .baca-network-card {
         background-color: #ffffff;
         color: #111827;
         border: 1px solid #d7eadc;
         border-left: 6px solid #2e9d57;
-        border-radius: 12px;
-        padding: 18px 22px;
-        margin-bottom: 16px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        border-radius: 14px;
+        padding: 26px 30px;
+        margin-top: 4px;
+        margin-bottom: 22px;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.07);
         transition: all 0.25s ease;
     }
 
     .interpretasi-card:hover,
     .baca-network-card:hover {
         transform: translateY(-3px);
-        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+        box-shadow: 0 7px 18px rgba(0, 0, 0, 0.13);
         border-color: #b8e3c3;
     }
 
@@ -1180,22 +1198,28 @@ st.markdown(
         font-size: 17px;
         font-weight: 700;
         color: #111827;
-        margin-bottom: 10px;
+        margin-bottom: 16px;
+        line-height: 1.45;
     }
 
     .interpretasi-card ul,
     .baca-network-card ul {
-        margin-top: 8px;
+        margin-top: 10px;
         margin-bottom: 0px;
-        padding-left: 22px;
+        padding-left: 28px;
     }
 
     .interpretasi-card li,
     .baca-network-card li {
-        margin-bottom: 7px;
-        line-height: 1.55;
+        margin-bottom: 11px;
+        line-height: 1.7;
         font-size: 15px;
         color: #111827;
+    }
+
+    .interpretasi-card li:last-child,
+    .baca-network-card li:last-child {
+        margin-bottom: 0px;
     }
 
     .interpretasi-card b,
@@ -1203,12 +1227,18 @@ st.markdown(
         color: #111827;
     }
 
+    /* ====== TOMBOL DOWNLOAD ====== */
+    div.stDownloadButton {
+        margin-top: 8px !important;
+        margin-bottom: 24px !important;
+    }
+
     div.stDownloadButton > button {
         background-color: #1f77d0;
         color: white;
         border: none;
         border-radius: 8px;
-        padding: 0.6em 1.1em;
+        padding: 0.65em 1.2em;
         font-weight: 600;
     }
 
@@ -1295,7 +1325,7 @@ if uploaded_file is not None:
                     unsafe_allow_html=True
                 )
 
-            st.markdown("<div style='margin-bottom: 18px;'></div>", unsafe_allow_html=True)
+            st.markdown("<div style='margin-bottom: 24px;'></div>", unsafe_allow_html=True)
 
             with st.expander("Lihat daftar obat unik"):
                 daftar_obat_unik_tampil = pd.DataFrame({"Nama Obat": daftar_obat_unik})
