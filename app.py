@@ -1061,16 +1061,14 @@ def buat_network_graph(rules2):
 st.markdown(
     """
     <style>
-    /* Jarak antar bagian utama */
     .section-gap {
         height: 22px;
     }
 
-    /* Header di dalam card utama */
+    /* Header utama: tanpa garis hijau samping, pakai gradasi biru */
     .section-header {
-        background: linear-gradient(90deg, #eaf7ef 0%, #ffffff 100%);
-        border: 1px solid #cfe8d5;
-        border-left: 8px solid #2e9d57;
+        background: linear-gradient(135deg, #e0f2fe 0%, #dbeafe 45%, #f8fbff 100%);
+        border: 1px solid #bfdbfe;
         border-radius: 14px;
         padding: 18px 22px;
         margin-bottom: 18px;
@@ -1079,22 +1077,21 @@ st.markdown(
     .section-title {
         font-size: 25px;
         font-weight: 800;
-        color: #111827;
+        color: #0f172a;
         margin-bottom: 6px;
     }
 
     .section-desc {
         font-size: 15px;
-        color: #4b5563;
+        color: #334155;
         line-height: 1.55;
         margin: 0;
     }
 
-    /* Card kecil untuk angka ringkasan */
+    /* Card kecil ringkasan */
     .metric-card {
         background-color: #ffffff;
-        border: 1px solid #d7eadc;
-        border-left: 6px solid #2e9d57;
+        border: 1px solid #dbe7f3;
         border-radius: 12px;
         padding: 18px 20px;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
@@ -1106,7 +1103,7 @@ st.markdown(
 
     .metric-label {
         font-size: 14px;
-        color: #4b5563;
+        color: #475569;
         margin-bottom: 10px;
         font-weight: 600;
         min-height: 38px;
@@ -1116,22 +1113,28 @@ st.markdown(
 
     .metric-value {
         font-size: 34px;
-        color: #111827;
+        color: #0f172a;
         font-weight: 700;
         line-height: 1;
     }
 
-    /* Judul subbagian di dalam card utama */
-    .sub-card-title {
+    .metric-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+    }
+
+    /* Judul subbagian di dalam card utama - dibuat kontras utk dark mode */
+    .inner-section-title {
         font-size: 20px;
         font-weight: 750;
-        color: #111827;
+        color: #f8fafc;
+        margin-top: 4px;
         margin-bottom: 8px;
     }
 
-    .sub-card-desc {
+    .inner-section-desc {
         font-size: 14px;
-        color: #4b5563;
+        color: #cbd5e1;
         margin-bottom: 12px;
         line-height: 1.5;
     }
@@ -1140,8 +1143,7 @@ st.markdown(
     .baca-network-card {
         background-color: #ffffff;
         color: #111827;
-        border: 1px solid #d7eadc;
-        border-left: 6px solid #2e9d57;
+        border: 1px solid #dbe7f3;
         border-radius: 12px;
         padding: 18px 22px;
         margin-bottom: 16px;
@@ -1150,11 +1152,9 @@ st.markdown(
     }
 
     .interpretasi-card:hover,
-    .baca-network-card:hover,
-    .metric-card:hover {
+    .baca-network-card:hover {
         transform: translateY(-3px);
         box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
-        border-color: #b8e3c3;
     }
 
     .interpretasi-title,
@@ -1286,37 +1286,35 @@ if uploaded_file is not None:
                 )
 
             st.markdown("<br>", unsafe_allow_html=True)
+            st.markdown(
+                """
+                <div class="inner-section-title">Detail Data</div>
+                <div class="inner-section-desc">
+                    Buka bagian di bawah ini untuk melihat daftar obat unik, data mentah, data bersih, dan data transaksi.
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
 
-            with st.container(border=True):
-                st.markdown(
-                    """
-                    <div class="sub-card-title">Detail Data</div>
-                    <div class="sub-card-desc">
-                        Buka bagian di bawah ini untuk melihat daftar obat unik, data mentah, data bersih, dan data transaksi.
-                    </div>
-                    """,
-                    unsafe_allow_html=True
-                )
+            with st.expander("Lihat daftar obat unik"):
+                daftar_obat_unik_tampil = pd.DataFrame({"Nama Obat": daftar_obat_unik})
+                daftar_obat_unik_tampil.index = range(1, len(daftar_obat_unik_tampil) + 1)
+                st.dataframe(daftar_obat_unik_tampil, use_container_width=True)
 
-                with st.expander("Lihat daftar obat unik"):
-                    daftar_obat_unik_tampil = pd.DataFrame({"Nama Obat": daftar_obat_unik})
-                    daftar_obat_unik_tampil.index = range(1, len(daftar_obat_unik_tampil) + 1)
-                    st.dataframe(daftar_obat_unik_tampil, use_container_width=True)
+            with st.expander("Lihat data mentah"):
+                df_upload_tampil = df_upload.head(100).copy()
+                df_upload_tampil.index = range(1, len(df_upload_tampil) + 1)
+                st.dataframe(df_upload_tampil, use_container_width=True)
 
-                with st.expander("Lihat data mentah"):
-                    df_upload_tampil = df_upload.head(100).copy()
-                    df_upload_tampil.index = range(1, len(df_upload_tampil) + 1)
-                    st.dataframe(df_upload_tampil, use_container_width=True)
+            with st.expander("Lihat data bersih"):
+                df_bersih_tampil = df_bersih.head(100).copy()
+                df_bersih_tampil.index = range(1, len(df_bersih_tampil) + 1)
+                st.dataframe(df_bersih_tampil, use_container_width=True)
 
-                with st.expander("Lihat data bersih"):
-                    df_bersih_tampil = df_bersih.head(100).copy()
-                    df_bersih_tampil.index = range(1, len(df_bersih_tampil) + 1)
-                    st.dataframe(df_bersih_tampil, use_container_width=True)
-
-                with st.expander("Lihat data transaksi"):
-                    transaksi_tampil = transaksi.head(100).copy()
-                    transaksi_tampil.index = range(1, len(transaksi_tampil) + 1)
-                    st.dataframe(transaksi_tampil, use_container_width=True)
+            with st.expander("Lihat data transaksi"):
+                transaksi_tampil = transaksi.head(100).copy()
+                transaksi_tampil.index = range(1, len(transaksi_tampil) + 1)
+                st.dataframe(transaksi_tampil, use_container_width=True)
 
         st.markdown("<div class='section-gap'></div>", unsafe_allow_html=True)
 
@@ -1343,67 +1341,64 @@ if uploaded_file is not None:
             if rules.empty:
                 st.warning("Tidak ada aturan asosiasi yang terbentuk dengan parameter saat ini.")
             else:
-                with st.container(border=True):
-                    st.markdown(
-                        """
-                        <div class="sub-card-title">Hasil Aturan Asosiasi</div>
-                        <div class="sub-card-desc">
-                            Tabel berikut menampilkan aturan asosiasi yang memenuhi nilai minimum support, minimum confidence, dan lift lebih dari 1.
-                        </div>
-                        """,
-                        unsafe_allow_html=True
-                    )
+                st.markdown(
+                    """
+                    <div class="inner-section-title">Hasil Aturan Asosiasi</div>
+                    <div class="inner-section-desc">
+                        Tabel berikut menampilkan aturan asosiasi yang memenuhi nilai minimum support, minimum confidence, dan lift lebih dari 1.
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
 
-                    rules_tampil = format_rules_for_display(rules)
-                    rules_tampil.index = range(1, len(rules_tampil) + 1)
-                    st.dataframe(rules_tampil, use_container_width=True)
+                rules_tampil = format_rules_for_display(rules)
+                rules_tampil.index = range(1, len(rules_tampil) + 1)
+                st.dataframe(rules_tampil, use_container_width=True)
 
-                    excel_file = buat_file_excel(
-                        rules_tampil=rules_tampil,
-                        df_bersih=df_bersih,
-                        transaksi=transaksi,
-                        daftar_obat_unik=daftar_obat_unik
-                    )
+                excel_file = buat_file_excel(
+                    rules_tampil=rules_tampil,
+                    df_bersih=df_bersih,
+                    transaksi=transaksi,
+                    daftar_obat_unik=daftar_obat_unik
+                )
 
-                    st.download_button(
-                        label="Download Hasil",
-                        data=excel_file,
-                        file_name="hasil_aturan_asosiasi_obat_bpjs_prb.xlsx",
-                        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                    )
+                st.download_button(
+                    label="Download Hasil",
+                    data=excel_file,
+                    file_name="hasil_aturan_asosiasi_obat_bpjs_prb.xlsx",
+                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                )
 
                 st.markdown("<br>", unsafe_allow_html=True)
+                st.markdown(
+                    """
+                    <div class="inner-section-title">Contoh Interpretasi 3 Aturan Asosiasi</div>
+                    <div class="inner-section-desc">
+                        Card berikut menjelaskan contoh pembacaan aturan berdasarkan nilai support, confidence, dan lift.
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
 
-                with st.container(border=True):
+                total_resep = transaksi["ID Resep"].nunique()
+                interpretasi = buat_interpretasi_rules(rules, total_resep=total_resep, jumlah=3)
+
+                for item in interpretasi:
                     st.markdown(
-                        """
-                        <div class="sub-card-title">Contoh Interpretasi 3 Aturan Asosiasi</div>
-                        <div class="sub-card-desc">
-                            Card berikut menjelaskan contoh pembacaan aturan berdasarkan nilai support, confidence, dan lift.
+                        f"""
+                        <div class="interpretasi-card">
+                            <div class="interpretasi-title">
+                                Aturan {item["nomor"]}: IF {item["antecedent"]} THEN {item["consequent"]}
+                            </div>
+                            <ul>
+                                <li>Kombinasi tersebut muncul pada <b>{item["jumlah_kombinasi"]} dari {total_resep} resep</b> atau <b>{item["support"]}</b>.</li>
+                                <li>Dari <b>{item["jumlah_antecedent"]} resep</b> yang berisi <b>{item["antecedent"]}</b>, terdapat <b>{item["jumlah_confidence"]} resep</b> atau <b>{item["confidence"]}</b> yang juga berisi <b>{item["consequent"]}</b>.</li>
+                                <li>Kedua obat tersebut <b>{item["lift"]} kali lebih sering muncul secara bersama dalam resep</b> dibandingkan jika masing-masing obat muncul secara terpisah.</li>
+                            </ul>
                         </div>
                         """,
                         unsafe_allow_html=True
                     )
-
-                    total_resep = transaksi["ID Resep"].nunique()
-                    interpretasi = buat_interpretasi_rules(rules, total_resep=total_resep, jumlah=3)
-
-                    for item in interpretasi:
-                        st.markdown(
-                            f"""
-                            <div class="interpretasi-card">
-                                <div class="interpretasi-title">
-                                    Aturan {item["nomor"]}: IF {item["antecedent"]} THEN {item["consequent"]}
-                                </div>
-                                <ul>
-                                    <li>Kombinasi tersebut muncul pada <b>{item["jumlah_kombinasi"]} dari {total_resep} resep</b> atau <b>{item["support"]}</b>.</li>
-                                    <li>Dari <b>{item["jumlah_antecedent"]} resep</b> yang berisi <b>{item["antecedent"]}</b>, terdapat <b>{item["jumlah_confidence"]} resep</b> atau <b>{item["confidence"]}</b> yang juga berisi <b>{item["consequent"]}</b>.</li>
-                                    <li>Kedua obat tersebut <b>{item["lift"]} kali lebih sering muncul secara bersama dalam resep</b> dibandingkan jika masing-masing obat muncul secara terpisah.</li>
-                                </ul>
-                            </div>
-                            """,
-                            unsafe_allow_html=True
-                        )
 
         if not rules.empty:
             st.markdown("<div class='section-gap'></div>", unsafe_allow_html=True)
@@ -1422,50 +1417,47 @@ if uploaded_file is not None:
                     unsafe_allow_html=True
                 )
 
-                with st.container(border=True):
-                    st.markdown(
-                        """
-                        <div class="sub-card-title">Network Graph Aturan Asosiasi</div>
-                        <div class="sub-card-desc">
-                            Visualisasi ini menunjukkan alur hubungan dari obat pemicu menuju node aturan, kemudian menuju obat yang ikut muncul.
-                        </div>
-                        """,
-                        unsafe_allow_html=True
-                    )
+                st.markdown(
+                    """
+                    <div class="inner-section-title">Network Graph Aturan Asosiasi</div>
+                    <div class="inner-section-desc">
+                        Visualisasi ini menunjukkan alur hubungan dari obat pemicu menuju node aturan, kemudian menuju obat yang ikut muncul.
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
 
-                    fig = buat_network_graph(rules)
-                    st.pyplot(fig)
+                fig = buat_network_graph(rules)
+                st.pyplot(fig)
 
                 st.markdown("<br>", unsafe_allow_html=True)
+                st.markdown(
+                    """
+                    <div class="inner-section-title">Contoh Cara Membaca Network Graph</div>
+                    <div class="inner-section-desc">
+                        Card berikut fokus pada arah garis dalam network graph, bukan pada penjelasan nilai support, confidence, dan lift.
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
 
-                with st.container(border=True):
+                contoh_baca_network = ambil_contoh_baca_network(rules, jumlah=3)
+
+                for item in contoh_baca_network:
                     st.markdown(
-                        """
-                        <div class="sub-card-title">Contoh Cara Membaca Network Graph</div>
-                        <div class="sub-card-desc">
-                            Card berikut fokus pada arah garis dalam network graph, bukan pada penjelasan nilai support, confidence, dan lift.
+                        f"""
+                        <div class="baca-network-card">
+                            <div class="baca-network-title">
+                                Aturan {item["rule_id"]}: IF {item["antecedent"]} THEN {item["consequent"]}
+                            </div>
+                            <ul>
+                                <li>Pada {item["rule_id"]}, garis putus-putus berasal dari <b>{item["antecedent"]}</b> menuju <b>{item["rule_id"]}</b>, kemudian garis lurus dari <b>{item["rule_id"]}</b> mengarah ke <b>{item["consequent"]}</b>.</li>
+                                <li>Artinya, node aturan menjadi penghubung arah baca: obat di sisi kiri dibaca sebagai pemicu, sedangkan obat di sisi kanan dibaca sebagai obat yang cenderung ikut muncul.</li>
+                            </ul>
                         </div>
                         """,
                         unsafe_allow_html=True
                     )
-
-                    contoh_baca_network = ambil_contoh_baca_network(rules, jumlah=3)
-
-                    for item in contoh_baca_network:
-                        st.markdown(
-                            f"""
-                            <div class="baca-network-card">
-                                <div class="baca-network-title">
-                                    Aturan {item["rule_id"]}: IF {item["antecedent"]} THEN {item["consequent"]}
-                                </div>
-                                <ul>
-                                    <li>Pada {item["rule_id"]}, garis putus-putus berasal dari <b>{item["antecedent"]}</b> menuju <b>{item["rule_id"]}</b>, kemudian garis lurus dari <b>{item["rule_id"]}</b> mengarah ke <b>{item["consequent"]}</b>.</li>
-                                    <li>Artinya, node aturan menjadi penghubung arah baca: obat di sisi kiri dibaca sebagai pemicu, sedangkan obat di sisi kanan dibaca sebagai obat yang cenderung ikut muncul.</li>
-                                </ul>
-                            </div>
-                            """,
-                            unsafe_allow_html=True
-                        )
 
     except Exception as e:
         st.error("Terjadi error saat proses analisis.")
