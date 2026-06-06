@@ -1127,25 +1127,29 @@ st.markdown(
 
     .section-title {
         font-size: 24px;
-        font-weight: 800;
+        font-weight: 850;
         color: var(--text-color) !important;
-        margin-bottom: 26px;
+        margin-bottom: 28px;
         text-transform: uppercase;
-        letter-spacing: 0.25px;
+        letter-spacing: 0.3px;
         line-height: 1.25;
+        padding: 10px 14px 10px 16px;
+        border-left: 6px solid #2e9d57;
+        border-radius: 10px;
+        background-color: rgba(46, 157, 87, 0.10);
     }
 
     .subsection-title {
         font-size: 18px;
         font-weight: 750;
         color: var(--text-color) !important;
-        margin-top: 16px;
-        margin-bottom: 16px;
+        margin-top: 18px;
+        margin-bottom: 14px;
         line-height: 1.35;
-        padding: 8px 12px 8px 14px;
-        border-left: 5px solid #2e9d57;
-        border-radius: 9px;
-        background-color: rgba(46, 157, 87, 0.10);
+        padding: 0;
+        border-left: none;
+        border-radius: 0;
+        background-color: transparent;
     }
 
     /* ====== CARD RINGKASAN DATA ====== */
