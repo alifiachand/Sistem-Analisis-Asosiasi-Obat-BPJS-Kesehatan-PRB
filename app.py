@@ -1193,21 +1193,30 @@ st.markdown(
 
     /* ====== EXPANDER DAN TABEL ====== */
     div[data-testid="stExpander"] {
-        margin-top: 4px !important;
+        margin-top: 8px !important;
         margin-bottom: 8px !important;
     }
 
     div[data-testid="stExpander"] details {
+        background-color: var(--background-color) !important;
+        border: 1px solid rgba(120, 120, 120, 0.18) !important;
+        border-left: 4px solid #2e9d57 !important;
         border-radius: 12px !important;
+        box-shadow: none !important;
     }
 
-    div[data-testid="stTabs"] {
-        margin-top: 8px !important;
+    div[data-testid="stExpander"] summary {
+        font-size: 13px !important;
+        font-weight: 650 !important;
+        color: var(--text-color) !important;
+        opacity: 0.78 !important;
+        padding: 6px 8px !important;
+        line-height: 1.35 !important;
     }
 
-    div[data-testid="stDataFrame"] {
-        margin-top: 8px !important;
-        margin-bottom: 8px !important;
+    div[data-testid="stExpander"] summary:hover {
+        opacity: 1 !important;
+        color: var(--text-color) !important;
     }
 
     /* ====== CARD INTERPRETASI DAN CARA BACA ====== */
@@ -1409,7 +1418,7 @@ if uploaded_file is not None:
 
             st.markdown("<div style='height: 2px;'></div>", unsafe_allow_html=True)
 
-            with st.expander("Lihat detail data"):
+            with st.expander("Lihat Detail Data"):
                 tab_obat, tab_mentah, tab_bersih, tab_transaksi = st.tabs([
                     "Daftar Obat Unik",
                     "Data Mentah",
