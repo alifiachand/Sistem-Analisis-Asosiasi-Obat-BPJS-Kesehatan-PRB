@@ -986,7 +986,7 @@ def buat_network_graph(rules2):
         else:
             labels[node] = node
 
-    fig, ax = plt.subplots(figsize=(16, 20))
+    fig, ax = plt.subplots(figsize=(13, 14))
 
     left_nodes = [
         n for n, d in G.nodes(data=True)
@@ -1085,8 +1085,8 @@ def buat_network_graph(rules2):
 
     if len(pos) > 0:
         y_vals = [p[1] for p in pos.values()]
-        ax.set_ylim(min(y_vals) - 1.5, max(y_vals) + 1.5)
-        ax.set_xlim(-5.3, 5.3)
+        ax.set_ylim(min(y_vals) - 0.8, max(y_vals) + 0.8)
+        ax.set_xlim(-4.4, 4.4)
 
     plt.tight_layout()
 
@@ -1239,6 +1239,7 @@ st.markdown(
         color: var(--text-color);
         margin-bottom: 14px;
         line-height: 1.4;
+        max-width: 980px;
     }
 
     .interpretasi-card ul,
@@ -1246,6 +1247,7 @@ st.markdown(
         margin-top: 8px;
         margin-bottom: 0px;
         padding-left: 26px;
+        max-width: 980px;
     }
 
     .interpretasi-card li,
@@ -1269,19 +1271,19 @@ st.markdown(
 
     /* ====== GRAPH ====== */
     .graph-card {
-        background-color: #ffffff;
-        border: 1px solid rgba(120, 120, 120, 0.28);
+        background-color: var(--background-color);
+        border: 1px solid rgba(120, 120, 120, 0.24);
         border-radius: 16px;
-        padding: 18px 20px;
+        padding: 10px 12px;
         margin-top: 8px;
-        margin-bottom: 22px;
-        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.07);
+        margin-bottom: 18px;
+        box-shadow: none;
         overflow-x: auto;
     }
 
     .graph-card img {
         width: 100%;
-        max-width: 1060px;
+        max-width: 980px;
         display: block;
         margin-left: auto;
         margin-right: auto;
