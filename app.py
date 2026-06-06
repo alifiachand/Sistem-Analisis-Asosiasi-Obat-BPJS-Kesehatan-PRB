@@ -537,9 +537,9 @@ def format_rules_for_display(rules):
         "lift": "Lift"
     })
 
-    tampil["Support"] = tampil["Support"].round(3)
-    tampil["Confidence"] = tampil["Confidence"].round(3)
-    tampil["Lift"] = tampil["Lift"].round(3)
+    tampil["Support"] = tampil["Support"].round(2)
+    tampil["Confidence"] = tampil["Confidence"].round(2)
+    tampil["Lift"] = tampil["Lift"].round(2)
 
     return tampil
 
@@ -1093,6 +1093,22 @@ def buat_network_graph(rules2):
     return fig
 
 
+def tampilkan_fig_dalam_card(fig):
+    buffer = BytesIO()
+    fig.savefig(buffer, format="png", bbox_inches="tight", dpi=160, facecolor="white")
+    buffer.seek(0)
+    img_base64 = base64.b64encode(buffer.read()).decode("utf-8")
+
+    st.markdown(
+        f"""
+        <div class="graph-card">
+            <img src="data:image/png;base64,{img_base64}" alt="Network Graph Aturan Asosiasi">
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+
 # TAMPILAN STREAMLIT #
 
 
@@ -1101,120 +1117,125 @@ st.markdown(
     <style>
     /* ====== PANEL UTAMA ====== */
     div[data-testid="stVerticalBlockBorderWrapper"] {
-        border: 1.5px solid rgba(120, 120, 120, 0.55) !important;
-        border-radius: 24px !important;
-        padding: 34px 36px 38px 36px !important;
+        border: 1.5px solid rgba(120, 120, 120, 0.42) !important;
+        border-radius: 26px !important;
+        padding: 42px 44px 46px 44px !important;
         background-color: var(--secondary-background-color) !important;
-        margin-top: 18px !important;
-        margin-bottom: 34px !important;
+        margin-top: 24px !important;
+        margin-bottom: 40px !important;
     }
 
     .section-title {
-        font-size: 25px;
-        font-weight: 800;
+        font-size: 27px;
+        font-weight: 850;
         color: var(--text-color) !important;
-        margin-bottom: 28px;
+        margin-bottom: 34px;
         text-transform: uppercase;
-        letter-spacing: 0.2px;
+        letter-spacing: 0.3px;
         line-height: 1.25;
     }
 
     .subsection-title {
-        font-size: 20px;
-        font-weight: 750;
+        font-size: 21px;
+        font-weight: 800;
         color: var(--text-color) !important;
-        margin-top: 18px;
-        margin-bottom: 22px;
+        margin-top: 26px;
+        margin-bottom: 24px;
         line-height: 1.35;
+        padding: 10px 14px 10px 16px;
+        border-left: 5px solid #2e9d57;
+        border-radius: 10px;
+        background-color: rgba(46, 157, 87, 0.10);
     }
 
     /* ====== CARD RINGKASAN DATA ====== */
     .metric-card {
-        background-color: #ffffff;
-        border: 1px solid #d7eadc;
+        background-color: var(--background-color);
+        border: 1px solid rgba(46, 157, 87, 0.26);
         border-left: 6px solid #2e9d57;
-        border-radius: 14px;
-        padding: 24px 26px;
-        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.07);
-        height: 142px;
+        border-radius: 16px;
+        padding: 28px 30px;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+        height: 154px;
         display: flex;
         flex-direction: column;
         justify-content: center;
-        margin-bottom: 20px;
+        margin-bottom: 24px;
     }
 
     .metric-label {
-        font-size: 14px;
-        color: #4b5563;
-        margin-bottom: 16px;
-        font-weight: 600;
-        min-height: 36px;
+        font-size: 14.5px;
+        color: var(--text-color);
+        opacity: 0.78;
+        margin-bottom: 18px;
+        font-weight: 650;
+        min-height: 38px;
         display: flex;
         align-items: center;
-        line-height: 1.45;
+        line-height: 1.5;
     }
 
     .metric-value {
-        font-size: 34px;
-        color: #111827;
-        font-weight: 700;
+        font-size: 36px;
+        color: var(--text-color);
+        font-weight: 800;
         line-height: 1.15;
     }
 
     /* ====== EXPANDER DAN TABEL ====== */
     div[data-testid="stExpander"] {
-        margin-bottom: 12px !important;
+        margin-bottom: 14px !important;
     }
 
     div[data-testid="stDataFrame"] {
-        margin-top: 8px !important;
-        margin-bottom: 22px !important;
+        margin-top: 12px !important;
+        margin-bottom: 28px !important;
     }
 
     /* ====== CARD INTERPRETASI DAN CARA BACA ====== */
     .interpretasi-card,
     .baca-network-card {
-        background-color: #ffffff;
-        color: #111827;
-        border: 1px solid #d7eadc;
+        background-color: var(--background-color);
+        color: var(--text-color);
+        border: 1px solid rgba(46, 157, 87, 0.26);
         border-left: 6px solid #2e9d57;
-        border-radius: 14px;
-        padding: 26px 30px;
-        margin-top: 4px;
-        margin-bottom: 22px;
-        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.07);
+        border-radius: 16px;
+        padding: 32px 38px;
+        margin-top: 8px;
+        margin-bottom: 26px;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
         transition: all 0.25s ease;
     }
 
     .interpretasi-card:hover,
     .baca-network-card:hover {
         transform: translateY(-3px);
-        box-shadow: 0 7px 18px rgba(0, 0, 0, 0.13);
-        border-color: #b8e3c3;
+        box-shadow: 0 8px 22px rgba(0, 0, 0, 0.14);
+        border-color: rgba(46, 157, 87, 0.55);
     }
 
     .interpretasi-title,
     .baca-network-title {
-        font-size: 17px;
-        font-weight: 700;
-        color: #111827;
-        margin-bottom: 16px;
+        font-size: 18px;
+        font-weight: 800;
+        color: var(--text-color);
+        margin-bottom: 20px;
         line-height: 1.45;
     }
 
     .interpretasi-card ul,
     .baca-network-card ul {
-        margin-top: 10px;
+        margin-top: 12px;
         margin-bottom: 0px;
-        padding-left: 28px;
+        padding-left: 32px;
     }
 
     .interpretasi-card li,
     .baca-network-card li {
-        margin-bottom: 11px;
-        line-height: 1.7;
-        font-size: 15px;
-        color: #111827;
+        margin-bottom: 13px;
+        line-height: 1.75;
+        font-size: 16px;
+        color: var(--text-color);
     }
 
     .interpretasi-card li:last-child,
@@ -1224,7 +1245,29 @@ st.markdown(
 
     .interpretasi-card b,
     .baca-network-card b {
-        color: #111827;
+        color: var(--text-color);
+        font-weight: 800;
+    }
+
+    /* ====== GRAPH ====== */
+    .graph-card {
+        background-color: #ffffff;
+        border: 1px solid rgba(120, 120, 120, 0.28);
+        border-radius: 18px;
+        padding: 26px 28px;
+        margin-top: 10px;
+        margin-bottom: 34px;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+        overflow-x: auto;
+    }
+
+    .graph-card img {
+        width: 100%;
+        max-width: 1080px;
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+        border-radius: 12px;
     }
 
     /* ====== TOMBOL DOWNLOAD ====== */
@@ -1409,7 +1452,7 @@ if uploaded_file is not None:
                 st.markdown('<div class="subsection-title">Network Graph Aturan Asosiasi</div>', unsafe_allow_html=True)
 
                 fig = buat_network_graph(rules)
-                st.pyplot(fig)
+                tampilkan_fig_dalam_card(fig)
 
                 st.markdown("<br>", unsafe_allow_html=True)
                 st.markdown('<div class="subsection-title">Contoh Cara Membaca Network Graph</div>', unsafe_allow_html=True)
