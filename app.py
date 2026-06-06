@@ -1129,15 +1129,14 @@ st.markdown(
         font-size: 24px;
         font-weight: 850;
         color: var(--text-color) !important;
-        margin-bottom: 26px;
+        margin-bottom: 28px;
         text-transform: uppercase;
         letter-spacing: 0.3px;
         line-height: 1.25;
-        padding: 0 0 12px 16px;
+        padding: 10px 14px 10px 16px;
         border-left: 6px solid #2e9d57;
-        border-bottom: 1px solid rgba(120, 120, 120, 0.22);
-        background: transparent;
-        box-shadow: none;
+        border-radius: 10px;
+        background-color: rgba(46, 157, 87, 0.10);
     }
 
     .subsection-title {
@@ -1223,9 +1222,9 @@ st.markdown(
 
     .interpretasi-card:hover,
     .baca-network-card:hover {
-        transform: translateY(-2px);
+        transform: translateY(-3px);
         box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
-        border-color: rgba(46, 157, 87, 0.55);
+        border-color: rgba(120, 120, 120, 0.45);
     }
 
     .interpretasi-title,
