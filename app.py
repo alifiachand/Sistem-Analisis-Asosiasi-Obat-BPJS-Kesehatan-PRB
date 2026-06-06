@@ -1118,33 +1118,33 @@ st.markdown(
     /* ====== PANEL UTAMA ====== */
     div[data-testid="stVerticalBlockBorderWrapper"] {
         border: 1.5px solid rgba(120, 120, 120, 0.42) !important;
-        border-radius: 26px !important;
-        padding: 42px 44px 46px 44px !important;
+        border-radius: 22px !important;
+        padding: 30px 32px 34px 32px !important;
         background-color: var(--secondary-background-color) !important;
-        margin-top: 24px !important;
-        margin-bottom: 40px !important;
+        margin-top: 20px !important;
+        margin-bottom: 28px !important;
     }
 
     .section-title {
-        font-size: 27px;
-        font-weight: 850;
+        font-size: 24px;
+        font-weight: 800;
         color: var(--text-color) !important;
-        margin-bottom: 34px;
+        margin-bottom: 26px;
         text-transform: uppercase;
-        letter-spacing: 0.3px;
+        letter-spacing: 0.25px;
         line-height: 1.25;
     }
 
     .subsection-title {
-        font-size: 21px;
-        font-weight: 800;
+        font-size: 18px;
+        font-weight: 750;
         color: var(--text-color) !important;
-        margin-top: 26px;
-        margin-bottom: 24px;
+        margin-top: 16px;
+        margin-bottom: 16px;
         line-height: 1.35;
-        padding: 10px 14px 10px 16px;
+        padding: 8px 12px 8px 14px;
         border-left: 5px solid #2e9d57;
-        border-radius: 10px;
+        border-radius: 9px;
         background-color: rgba(46, 157, 87, 0.10);
     }
 
@@ -1153,30 +1153,30 @@ st.markdown(
         background-color: var(--background-color);
         border: 1px solid rgba(46, 157, 87, 0.26);
         border-left: 6px solid #2e9d57;
-        border-radius: 16px;
-        padding: 28px 30px;
-        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
-        height: 154px;
+        border-radius: 14px;
+        padding: 22px 24px;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.07);
+        height: 132px;
         display: flex;
         flex-direction: column;
         justify-content: center;
-        margin-bottom: 24px;
+        margin-bottom: 18px;
     }
 
     .metric-label {
-        font-size: 14.5px;
+        font-size: 13.5px;
         color: var(--text-color);
         opacity: 0.78;
-        margin-bottom: 18px;
+        margin-bottom: 12px;
         font-weight: 650;
-        min-height: 38px;
+        min-height: 34px;
         display: flex;
         align-items: center;
-        line-height: 1.5;
+        line-height: 1.45;
     }
 
     .metric-value {
-        font-size: 36px;
+        font-size: 31px;
         color: var(--text-color);
         font-weight: 800;
         line-height: 1.15;
@@ -1184,21 +1184,21 @@ st.markdown(
 
     /* ====== EXPANDER DAN TABEL ====== */
     div[data-testid="stExpander"] {
-        margin-top: 6px !important;
-        margin-bottom: 14px !important;
+        margin-top: 4px !important;
+        margin-bottom: 8px !important;
     }
 
     div[data-testid="stExpander"] details {
-        border-radius: 14px !important;
+        border-radius: 12px !important;
     }
 
     div[data-testid="stTabs"] {
-        margin-top: 10px !important;
+        margin-top: 8px !important;
     }
 
     div[data-testid="stDataFrame"] {
-        margin-top: 12px !important;
-        margin-bottom: 28px !important;
+        margin-top: 10px !important;
+        margin-bottom: 14px !important;
     }
 
     /* ====== CARD INTERPRETASI DAN CARA BACA ====== */
@@ -1208,42 +1208,42 @@ st.markdown(
         color: var(--text-color);
         border: 1px solid rgba(46, 157, 87, 0.26);
         border-left: 6px solid #2e9d57;
-        border-radius: 16px;
-        padding: 32px 38px;
-        margin-top: 8px;
-        margin-bottom: 26px;
-        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+        border-radius: 14px;
+        padding: 24px 28px;
+        margin-top: 6px;
+        margin-bottom: 18px;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.07);
         transition: all 0.25s ease;
     }
 
     .interpretasi-card:hover,
     .baca-network-card:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 22px rgba(0, 0, 0, 0.14);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
         border-color: rgba(46, 157, 87, 0.55);
     }
 
     .interpretasi-title,
     .baca-network-title {
-        font-size: 18px;
+        font-size: 16px;
         font-weight: 800;
         color: var(--text-color);
-        margin-bottom: 20px;
-        line-height: 1.45;
+        margin-bottom: 14px;
+        line-height: 1.4;
     }
 
     .interpretasi-card ul,
     .baca-network-card ul {
-        margin-top: 12px;
+        margin-top: 8px;
         margin-bottom: 0px;
-        padding-left: 32px;
+        padding-left: 26px;
     }
 
     .interpretasi-card li,
     .baca-network-card li {
-        margin-bottom: 13px;
-        line-height: 1.75;
-        font-size: 16px;
+        margin-bottom: 8px;
+        line-height: 1.55;
+        font-size: 14.5px;
         color: var(--text-color);
     }
 
@@ -1262,21 +1262,21 @@ st.markdown(
     .graph-card {
         background-color: #ffffff;
         border: 1px solid rgba(120, 120, 120, 0.28);
-        border-radius: 18px;
-        padding: 26px 28px;
-        margin-top: 10px;
-        margin-bottom: 34px;
-        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+        border-radius: 16px;
+        padding: 18px 20px;
+        margin-top: 8px;
+        margin-bottom: 22px;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.07);
         overflow-x: auto;
     }
 
     .graph-card img {
         width: 100%;
-        max-width: 1080px;
+        max-width: 1060px;
         display: block;
         margin-left: auto;
         margin-right: auto;
-        border-radius: 12px;
+        border-radius: 10px;
     }
 
     /* ====== TAB DETAIL DATA ====== */
@@ -1299,8 +1299,8 @@ st.markdown(
 
     /* ====== TOMBOL DOWNLOAD ====== */
     div.stDownloadButton {
-        margin-top: 8px !important;
-        margin-bottom: 24px !important;
+        margin-top: 6px !important;
+        margin-bottom: 10px !important;
     }
 
     div.stDownloadButton > button {
@@ -1308,8 +1308,9 @@ st.markdown(
         color: white;
         border: none;
         border-radius: 8px;
-        padding: 0.65em 1.2em;
+        padding: 0.58em 1.08em;
         font-weight: 600;
+        font-size: 14px;
     }
 
     div.stDownloadButton > button:hover {
@@ -1395,7 +1396,7 @@ if uploaded_file is not None:
                     unsafe_allow_html=True
                 )
 
-            st.markdown("<div style='margin-bottom: 24px;'></div>", unsafe_allow_html=True)
+            st.markdown("<div style='height: 10px;'></div>", unsafe_allow_html=True)
 
             with st.expander("Lihat detail data"):
                 tab_obat, tab_mentah, tab_bersih, tab_transaksi = st.tabs([
@@ -1459,7 +1460,7 @@ if uploaded_file is not None:
                     mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                 )
 
-                st.markdown("<br>", unsafe_allow_html=True)
+                st.markdown("<div style='height: 8px;'></div>", unsafe_allow_html=True)
                 st.markdown('<div class="subsection-title">Contoh Interpretasi 3 Aturan Asosiasi</div>', unsafe_allow_html=True)
 
                 interpretasi = buat_interpretasi_rules(rules, total_resep=total_resep, jumlah=3)
@@ -1489,7 +1490,7 @@ if uploaded_file is not None:
                 fig = buat_network_graph(rules)
                 tampilkan_fig_dalam_card(fig)
 
-                st.markdown("<br>", unsafe_allow_html=True)
+                st.markdown("<div style='height: 8px;'></div>", unsafe_allow_html=True)
                 st.markdown('<div class="subsection-title">Contoh Cara Membaca Network Graph</div>', unsafe_allow_html=True)
 
                 contoh_baca_network = ambil_contoh_baca_network(rules, jumlah=3)
