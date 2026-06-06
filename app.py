@@ -1136,8 +1136,7 @@ st.markdown(
         padding: 11px 18px;
         border-left: none;
         border-radius: 10px;
-        border: 1px solid rgba(46, 157, 87, 0.10);
-        background: linear-gradient(90deg, rgba(46, 157, 87, 0.12) 0%, rgba(46, 157, 87, 0.06) 55%, rgba(46, 157, 87, 0.02) 100%);
+        background: linear-gradient(90deg, rgba(46, 157, 87, 0.14) 0%, rgba(46, 157, 87, 0.08) 45%, rgba(46, 157, 87, 0.04) 100%);
     }
 
     .subsection-title {
