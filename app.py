@@ -1296,10 +1296,9 @@ if uploaded_file is not None:
                             Aturan {item["nomor"]}: IF {item["antecedent"]} THEN {item["consequent"]}
                         </div>
                         <ul>
-                            <li>Apabila dokter meresepkan {item["antecedent"]}, maka {item["consequent"]} juga cenderung ikut diresepkan.</li>
-                            <li>Muncul pada {item["support"]} ({item["jumlah_kombinasi"]} resep) dari seluruh resep.</li>
-                            <li>Dari {item["jumlah_antecedent"]} resep yang berisi {item["antecedent"]}, sebanyak {item["confidence"]} ({item["jumlah_confidence"]} resep) juga berisi {item["consequent"]}.</li>
-                            <li>Lift {item["lift"]} menunjukkan bahwa kedua obat memiliki kecenderungan muncul bersamaan {item["lift"]} kali lebih kuat dibandingkan kemunculan biasa.</li>
+                            <li>Kombinasi tersebut muncul pada <b>{item["jumlah_kombinasi"]} dari {total_resep} resep</b> atau <b>{item["support"]}</b>.</li>
+                            <li>Dari <b>{item["jumlah_antecedent"]} resep</b> yang berisi <b>{item["antecedent"]}</b>, terdapat <b>{item["jumlah_confidence"]} resep</b> atau <b>{item["confidence"]}</b> yang juga berisi <b>{item["consequent"]}</b>.</li>
+                            <li>Kedua obat tersebut <b>{item["lift"]} kali lebih sering muncul secara bersama dalam resep</b> dibandingkan jika masing-masing obat muncul secara terpisah.</li>
                         </ul>
                     </div>
                     """,
@@ -1368,7 +1367,7 @@ if uploaded_file is not None:
                         </div>
                         <ul>
                             <li>Pada {item["rule_id"]}, garis putus-putus berasal dari {item["antecedent"]} menuju {item["rule_id"]}, kemudian garis lurus dari {item["rule_id"]} mengarah ke {item["consequent"]}.</li>
-                            <li>Dengan demikian, {item["rule_id"]} dibaca sebagai: apabila dokter meresepkan {item["antecedent"]}, maka {item["consequent"]} cenderung ikut diresepkan.</li>
+                            <li>Artinya, apabila dokter meresepkan {item["antecedent"]}, maka {item["consequent"]} cenderung ikut diresepkan.</li>
                         </ul>
                     </div>
                     """,
