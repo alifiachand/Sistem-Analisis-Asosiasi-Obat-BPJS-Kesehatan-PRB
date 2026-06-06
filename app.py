@@ -1125,6 +1125,18 @@ st.markdown(
         margin-bottom: 14px;
     }
 
+    @media (prefers-color-scheme: dark) {
+        div[data-testid="stVerticalBlockBorderWrapper"] {
+            background-color: #111827 !important;
+            border-color: #374151 !important;
+        }
+
+        .section-title,
+        .subsection-title {
+            color: #f9fafb !important;
+        }
+    }
+    
     .metric-card {
         background-color: #ffffff;
         border: 1px solid #d7eadc;
