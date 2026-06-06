@@ -1184,7 +1184,16 @@ st.markdown(
 
     /* ====== EXPANDER DAN TABEL ====== */
     div[data-testid="stExpander"] {
+        margin-top: 6px !important;
         margin-bottom: 14px !important;
+    }
+
+    div[data-testid="stExpander"] details {
+        border-radius: 14px !important;
+    }
+
+    div[data-testid="stTabs"] {
+        margin-top: 10px !important;
     }
 
     div[data-testid="stDataFrame"] {
@@ -1370,25 +1379,33 @@ if uploaded_file is not None:
 
             st.markdown("<div style='margin-bottom: 24px;'></div>", unsafe_allow_html=True)
 
-            with st.expander("Lihat daftar obat unik"):
-                daftar_obat_unik_tampil = pd.DataFrame({"Nama Obat": daftar_obat_unik})
-                daftar_obat_unik_tampil.index = range(1, len(daftar_obat_unik_tampil) + 1)
-                st.dataframe(daftar_obat_unik_tampil, use_container_width=True)
+            with st.expander("Lihat detail data"):
+                tab_obat, tab_mentah, tab_bersih, tab_transaksi = st.tabs([
+                    "Daftar Obat Unik",
+                    "Data Mentah",
+                    "Data Bersih",
+                    "Data Transaksi"
+                ])
 
-            with st.expander("Lihat data mentah"):
-                df_upload_tampil = df_upload.head(100).copy()
-                df_upload_tampil.index = range(1, len(df_upload_tampil) + 1)
-                st.dataframe(df_upload_tampil, use_container_width=True)
+                with tab_obat:
+                    daftar_obat_unik_tampil = pd.DataFrame({"Nama Obat": daftar_obat_unik})
+                    daftar_obat_unik_tampil.index = range(1, len(daftar_obat_unik_tampil) + 1)
+                    st.dataframe(daftar_obat_unik_tampil, use_container_width=True)
 
-            with st.expander("Lihat data bersih"):
-                df_bersih_tampil = df_bersih.head(100).copy()
-                df_bersih_tampil.index = range(1, len(df_bersih_tampil) + 1)
-                st.dataframe(df_bersih_tampil, use_container_width=True)
+                with tab_mentah:
+                    df_upload_tampil = df_upload.head(100).copy()
+                    df_upload_tampil.index = range(1, len(df_upload_tampil) + 1)
+                    st.dataframe(df_upload_tampil, use_container_width=True)
 
-            with st.expander("Lihat data transaksi"):
-                transaksi_tampil = transaksi.head(100).copy()
-                transaksi_tampil.index = range(1, len(transaksi_tampil) + 1)
-                st.dataframe(transaksi_tampil, use_container_width=True)
+                with tab_bersih:
+                    df_bersih_tampil = df_bersih.head(100).copy()
+                    df_bersih_tampil.index = range(1, len(df_bersih_tampil) + 1)
+                    st.dataframe(df_bersih_tampil, use_container_width=True)
+
+                with tab_transaksi:
+                    transaksi_tampil = transaksi.head(100).copy()
+                    transaksi_tampil.index = range(1, len(transaksi_tampil) + 1)
+                    st.dataframe(transaksi_tampil, use_container_width=True)
 
         frequent_itemsets, rules = proses_arm(
             transaksi,
