@@ -1155,32 +1155,32 @@ st.markdown(
     /* ====== CARD RINGKASAN DATA ====== */
     .metric-card {
         background-color: var(--background-color);
-        border: 1px solid rgba(120, 120, 120, 0.18);
-        border-left: 4px solid #2e9d57;
+        border: 1px solid rgba(120, 120, 120, 0.16);
+        border-left: none;
         border-radius: 12px;
         padding: 18px 20px;
         box-shadow: none;
-        height: 112px;
+        height: 108px;
         display: flex;
         flex-direction: column;
         justify-content: center;
-        margin-bottom: 12px;
+        margin-bottom: 10px;
     }
 
     .metric-label {
         font-size: 13px;
         color: var(--text-color);
-        opacity: 0.70;
+        opacity: 0.62;
         margin-bottom: 8px;
         font-weight: 650;
-        min-height: 28px;
+        min-height: 24px;
         display: flex;
         align-items: center;
         line-height: 1.35;
     }
 
     .metric-value {
-        font-size: 29px;
+        font-size: 28px;
         color: var(--text-color);
         font-weight: 800;
         line-height: 1.1;
