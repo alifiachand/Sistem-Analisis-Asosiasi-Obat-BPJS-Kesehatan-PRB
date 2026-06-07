@@ -1121,14 +1121,13 @@ st.markdown(
         border-radius: 16px !important;
         padding: 18px 20px 20px 20px !important;
         background-color: #eef0f2 !important;
-        box-shadow: inset 0 0 0 9999px #eef0f2 !important;
         margin-top: 14px !important;
         margin-bottom: 16px !important;
         overflow: hidden !important;
     }
 
     div[data-testid="stVerticalBlockBorderWrapper"] > div {
-        background-color: transparent !important;
+        background-color: #eef0f2 !important;
         border-radius: 16px !important;
     }
 
@@ -1166,7 +1165,7 @@ st.markdown(
 
     /* ====== CARD RINGKASAN DATA ====== */
     .metric-card {
-        background-color: #ffffff;
+        background-color: #ffffff !important;
         border: 1px solid rgba(120, 120, 120, 0.18);
         border-left: 4px solid #2e9d57;
         border-radius: 12px;
@@ -1291,7 +1290,7 @@ st.markdown(
 
     /* ====== GRAPH ====== */
     .graph-card {
-        background-color: #ffffff;
+        background-color: #ffffff !important;
         border: 1px solid rgba(120, 120, 120, 0.24);
         border-radius: 16px;
         padding: 10px 12px;
