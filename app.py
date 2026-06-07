@@ -1340,19 +1340,26 @@ st.markdown(
     }
 
     div.stDownloadButton > button {
-        background-color: #1f77d0;
-        color: white;
-        border: none;
-        border-radius: 8px;
-        padding: 0.58em 1.08em;
-        font-weight: 600;
-        font-size: 14px;
+        background-color: #1f77d0 !important;
+        color: #ffffff !important;
+        border: none !important;
+        border-radius: 8px !important;
+        padding: 0.58em 1.08em !important;
+        font-weight: 600 !important;
+        font-size: 14px !important;
     }
 
     div.stDownloadButton > button:hover {
-        background-color: #155fa8;
-        color: white;
-        border: none;
+        background-color: #155fa8 !important;
+        color: #ffffff !important;
+        border: none !important;
+    }
+
+    div.stDownloadButton > button p,
+    div.stDownloadButton > button span,
+    div.stDownloadButton > button div {
+        color: #ffffff !important;
+        font-weight: 600 !important;
     }
 
 
