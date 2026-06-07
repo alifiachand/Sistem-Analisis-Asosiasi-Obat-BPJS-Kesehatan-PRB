@@ -1120,14 +1120,15 @@ st.markdown(
         border: 1px solid rgba(120, 120, 120, 0.28) !important;
         border-radius: 16px !important;
         padding: 18px 20px 20px 20px !important;
-        background-color: #f1f3f5 !important;
+        background-color: #eef0f2 !important;
+        box-shadow: inset 0 0 0 9999px #eef0f2 !important;
         margin-top: 14px !important;
         margin-bottom: 16px !important;
         overflow: hidden !important;
     }
 
     div[data-testid="stVerticalBlockBorderWrapper"] > div {
-        background-color: #f1f3f5 !important;
+        background-color: transparent !important;
         border-radius: 16px !important;
     }
 
@@ -1360,6 +1361,7 @@ st.markdown(
         div[data-testid="stVerticalBlockBorderWrapper"],
         div[data-testid="stVerticalBlockBorderWrapper"] > div {
             background-color: rgba(255, 255, 255, 0.035) !important;
+            box-shadow: none !important;
             border-color: rgba(255, 255, 255, 0.18) !important;
         }
 
