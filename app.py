@@ -1120,19 +1120,10 @@ st.markdown(
         border: 1px solid rgba(120, 120, 120, 0.28) !important;
         border-radius: 16px !important;
         padding: 18px 20px 20px 20px !important;
-        background-color: rgba(120, 120, 120, 0.075) !important;
+        background: #f7f8fa !important;
         margin-top: 14px !important;
         margin-bottom: 16px !important;
-    }
-
-    div[data-testid="stVerticalBlockBorderWrapper"] > div {
-        background-color: rgba(120, 120, 120, 0.075) !important;
-        border-radius: 16px !important;
-    }
-
-    div[data-testid="stVerticalBlockBorderWrapper"] div[data-testid="stVerticalBlock"] {
-        background-color: rgba(120, 120, 120, 0.075) !important;
-        border-radius: 16px !important;
+        overflow: hidden !important;
     }
 
     .section-title {
