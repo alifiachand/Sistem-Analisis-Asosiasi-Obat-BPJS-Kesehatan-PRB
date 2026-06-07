@@ -1120,22 +1120,9 @@ st.markdown(
         border: 1px solid rgba(120, 120, 120, 0.28) !important;
         border-radius: 16px !important;
         padding: 18px 20px 20px 20px !important;
-        background-color: #e9ecef !important;
-        box-shadow: none !important;
+        background-color: rgba(120, 120, 120, 0.05) !important;
         margin-top: 14px !important;
         margin-bottom: 16px !important;
-        overflow: hidden !important;
-    }
-
-    div[data-testid="stVerticalBlockBorderWrapper"] > div {
-        background-color: #e9ecef !important;
-        border-radius: 16px !important;
-    }
-
-    /* paksa area kosong di dalam panel ikut abu, tapi nanti card kecil dioverride putih */
-    div[data-testid="stVerticalBlockBorderWrapper"] div[data-testid="stVerticalBlock"],
-    div[data-testid="stVerticalBlockBorderWrapper"] div[data-testid="stElementContainer"] {
-        background-color: transparent !important;
     }
 
     .section-title {
@@ -1151,10 +1138,10 @@ st.markdown(
         border-radius: 10px;
         background: linear-gradient(
             90deg,
-            rgba(46, 157, 87, 0.12) 0%,
-            rgba(46, 157, 87, 0.07) 55%,
-            rgba(46, 157, 87, 0.035) 100%
-        ) !important;
+            rgba(46, 157, 87, 0.10) 0%,
+            rgba(46, 157, 87, 0.06) 55%,
+            rgba(46, 157, 87, 0.03) 100%
+        );
     }
 
     .subsection-title {
@@ -1167,26 +1154,22 @@ st.markdown(
         padding: 0;
         border-left: none;
         border-radius: 0;
-        background-color: transparent !important;
+        background-color: transparent;
     }
 
     /* ====== CARD RINGKASAN DATA ====== */
     .metric-card {
-        background-color: #ffffff !important;
-        border: 1px solid rgba(120, 120, 120, 0.18) !important;
-        border-left: 4px solid #2e9d57 !important;
-        border-radius: 12px !important;
+        background-color: var(--background-color);
+        border: 1px solid rgba(120, 120, 120, 0.18);
+        border-left: 4px solid #2e9d57;
+        border-radius: 12px;
         padding: 18px 20px;
-        box-shadow: none !important;
+        box-shadow: none;
         height: 112px;
         display: flex;
         flex-direction: column;
         justify-content: center;
         margin-bottom: 12px;
-    }
-
-    .metric-card * {
-        background-color: transparent !important;
     }
 
     .metric-label {
@@ -1212,11 +1195,10 @@ st.markdown(
     div[data-testid="stExpander"] {
         margin-top: 8px !important;
         margin-bottom: 8px !important;
-        background-color: transparent !important;
     }
 
     div[data-testid="stExpander"] details {
-        background-color: #ffffff !important;
+        background-color: var(--background-color) !important;
         border: 1px solid rgba(120, 120, 120, 0.18) !important;
         border-left: 4px solid #2e9d57 !important;
         border-radius: 12px !important;
@@ -1230,13 +1212,10 @@ st.markdown(
         opacity: 0.78 !important;
         padding: 6px 8px !important;
         line-height: 1.35 !important;
-        background-color: transparent !important;
     }
 
     div[data-testid="stExpander"] summary p {
         font-weight: 800 !important;
-        margin: 0 !important;
-        background-color: transparent !important;
     }
 
     div[data-testid="stExpander"] summary:hover {
@@ -1247,7 +1226,7 @@ st.markdown(
     /* ====== CARD INTERPRETASI DAN CARA BACA ====== */
     .interpretasi-card,
     .baca-network-card {
-        background-color: #ffffff !important;
+        background-color: var(--background-color);
         color: var(--text-color);
         border: 1px solid rgba(120, 120, 120, 0.18);
         border-left: 4px solid #2e9d57;
@@ -1257,11 +1236,6 @@ st.markdown(
         margin-bottom: 12px;
         box-shadow: none;
         transition: all 0.25s ease;
-    }
-
-    .interpretasi-card *,
-    .baca-network-card * {
-        background-color: transparent !important;
     }
 
     .interpretasi-card:hover,
@@ -1310,7 +1284,7 @@ st.markdown(
 
     /* ====== GRAPH ====== */
     .graph-card {
-        background-color: #ffffff !important;
+        background-color: var(--background-color);
         border: 1px solid rgba(120, 120, 120, 0.24);
         border-radius: 16px;
         padding: 10px 12px;
@@ -1327,18 +1301,6 @@ st.markdown(
         margin-left: auto;
         margin-right: auto;
         border-radius: 10px;
-        background-color: #ffffff !important;
-    }
-
-    /* ====== DATAFRAME ====== */
-    div[data-testid="stDataFrame"] {
-        background-color: #ffffff !important;
-        border-radius: 12px !important;
-    }
-
-    div[data-testid="stDataFrame"] > div {
-        background-color: #ffffff !important;
-        border-radius: 12px !important;
     }
 
     /* ====== TAB DETAIL DATA ====== */
@@ -1363,7 +1325,6 @@ st.markdown(
     div.stDownloadButton {
         margin-top: 2px !important;
         margin-bottom: 4px !important;
-        background-color: transparent !important;
     }
 
     div.stDownloadButton > button {
@@ -1380,44 +1341,6 @@ st.markdown(
         background-color: #155fa8;
         color: white;
         border: none;
-    }
-
-    /* ====== DARK MODE FIX ====== */
-    @media (prefers-color-scheme: dark) {
-        div[data-testid="stVerticalBlockBorderWrapper"],
-        div[data-testid="stVerticalBlockBorderWrapper"] > div {
-            background-color: rgba(255, 255, 255, 0.035) !important;
-            border-color: rgba(255, 255, 255, 0.18) !important;
-            box-shadow: none !important;
-        }
-
-        div[data-testid="stVerticalBlockBorderWrapper"] div[data-testid="stVerticalBlock"],
-        div[data-testid="stVerticalBlockBorderWrapper"] div[data-testid="stElementContainer"] {
-            background-color: transparent !important;
-        }
-
-        .metric-card,
-        div[data-testid="stExpander"] details,
-        .interpretasi-card,
-        .baca-network-card,
-        .graph-card {
-            background-color: var(--background-color) !important;
-            color: var(--text-color) !important;
-        }
-
-        .section-title {
-            background: linear-gradient(
-                90deg,
-                rgba(46, 157, 87, 0.18) 0%,
-                rgba(46, 157, 87, 0.10) 55%,
-                rgba(46, 157, 87, 0.05) 100%
-            ) !important;
-        }
-
-        div[data-testid="stDataFrame"],
-        div[data-testid="stDataFrame"] > div {
-            background-color: var(--background-color) !important;
-        }
     }
     </style>
     """,
@@ -1448,9 +1371,9 @@ if uploaded_file is not None:
         total_resep_teks = format_bilangan(total_resep)
 
         # RINGKASAN DATA
-        with st.container(border=True, key="panel_ringkasan"):
+        with st.container(border=True):
             st.markdown('<div class="section-title">Ringkasan Data</div>', unsafe_allow_html=True)
-            
+
             col1, col2, col3, col4 = st.columns(4)
 
             with col1:
@@ -1534,12 +1457,12 @@ if uploaded_file is not None:
         )
 
         if rules.empty:
-            with st.container(border=True, key="panel_model_empty"):
+            with st.container(border=True):
                 st.markdown('<div class="section-title">Model Prediksi</div>', unsafe_allow_html=True)
                 st.warning("Tidak ada aturan asosiasi yang terbentuk dengan parameter saat ini.")
         else:
             # MODEL PREDIKSI
-            with st.container(border=True, key="panel_model"):
+            with st.container(border=True):
                 st.markdown('<div class="section-title">Model Prediksi</div>', unsafe_allow_html=True)
                 st.markdown('<div class="subsection-title">Hasil Aturan Asosiasi</div>', unsafe_allow_html=True)
 
@@ -1584,7 +1507,7 @@ if uploaded_file is not None:
                     )
 
             # VISUALISASI
-            with st.container(border=True, key="panel_visualisasi"):
+            with st.container(border=True):
                 st.markdown('<div class="section-title">Visualisasi</div>', unsafe_allow_html=True)
                 st.markdown('<div class="subsection-title">Network Graph Aturan Asosiasi</div>', unsafe_allow_html=True)
 
