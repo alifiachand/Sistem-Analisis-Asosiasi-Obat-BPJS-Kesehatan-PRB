@@ -1123,17 +1123,16 @@ st.markdown(
         border: 1px solid rgba(120, 120, 120, 0.28) !important;
         border-radius: 16px !important;
         padding: 18px 20px 20px 20px !important;
-        background-color: #f5f6f8 !important;
+        background-color: rgba(120, 120, 120, 0.075) !important;
         margin-top: 14px !important;
         margin-bottom: 16px !important;
     }
 
-    /* isi dalam panel */
     .st-key-panel_ringkasan > div,
     .st-key-panel_model > div,
     .st-key-panel_model_empty > div,
     .st-key-panel_visualisasi > div {
-        background-color: #f5f6f8 !important;
+        background-color: rgba(120, 120, 120, 0.075) !important;
         border-radius: 16px !important;
     }
 
@@ -1171,7 +1170,7 @@ st.markdown(
 
     /* ====== CARD RINGKASAN DATA ====== */
     .metric-card {
-        background-color: var(--background-color);
+        background-color: #ffffff;
         border: 1px solid rgba(120, 120, 120, 0.18);
         border-left: 4px solid #2e9d57;
         border-radius: 12px;
@@ -1210,7 +1209,7 @@ st.markdown(
     }
 
     div[data-testid="stExpander"] details {
-        background-color: var(--background-color) !important;
+        background-color: #ffffff !important;
         border: 1px solid rgba(120, 120, 120, 0.18) !important;
         border-left: 4px solid #2e9d57 !important;
         border-radius: 12px !important;
@@ -1238,7 +1237,7 @@ st.markdown(
     /* ====== CARD INTERPRETASI DAN CARA BACA ====== */
     .interpretasi-card,
     .baca-network-card {
-        background-color: var(--background-color);
+        background-color: #ffffff;
         color: var(--text-color);
         border: 1px solid rgba(120, 120, 120, 0.18);
         border-left: 4px solid #2e9d57;
@@ -1296,7 +1295,7 @@ st.markdown(
 
     /* ====== GRAPH ====== */
     .graph-card {
-        background-color: var(--background-color);
+        background-color: #ffffff;
         border: 1px solid rgba(120, 120, 120, 0.24);
         border-radius: 16px;
         padding: 10px 12px;
@@ -1313,6 +1312,12 @@ st.markdown(
         margin-left: auto;
         margin-right: auto;
         border-radius: 10px;
+    }
+
+    /* ====== DATAFRAME ====== */
+    div[data-testid="stDataFrame"] {
+        background-color: #ffffff !important;
+        border-radius: 12px !important;
     }
 
     /* ====== TAB DETAIL DATA ====== */
@@ -1353,6 +1358,43 @@ st.markdown(
         background-color: #155fa8;
         color: white;
         border: none;
+    }
+    
+    /* ====== DARK MODE FIX ====== */
+    @media (prefers-color-scheme: dark) {
+        .st-key-panel_ringkasan,
+        .st-key-panel_model,
+        .st-key-panel_model_empty,
+        .st-key-panel_visualisasi,
+        .st-key-panel_ringkasan > div,
+        .st-key-panel_model > div,
+        .st-key-panel_model_empty > div,
+        .st-key-panel_visualisasi > div {
+            background-color: rgba(255, 255, 255, 0.035) !important;
+            border-color: rgba(255, 255, 255, 0.18) !important;
+        }
+
+        .metric-card,
+        div[data-testid="stExpander"] details,
+        .interpretasi-card,
+        .baca-network-card,
+        .graph-card {
+            background-color: var(--background-color) !important;
+            color: var(--text-color) !important;
+        }
+
+        .section-title {
+            background: linear-gradient(
+                90deg,
+                rgba(46, 157, 87, 0.18) 0%,
+                rgba(46, 157, 87, 0.10) 55%,
+                rgba(46, 157, 87, 0.05) 100%
+            ) !important;
+        }
+
+        div[data-testid="stDataFrame"] {
+            background-color: var(--background-color) !important;
+        }
     }
     </style>
     """,
