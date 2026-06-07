@@ -1116,22 +1116,17 @@ st.markdown(
     """
     <style>
     /* ====== PANEL UTAMA ====== */
-    .st-key-panel_ringkasan,
-    .st-key-panel_model,
-    .st-key-panel_model_empty,
-    .st-key-panel_visualisasi {
+    div[data-testid="stVerticalBlockBorderWrapper"] {
         border: 1px solid rgba(120, 120, 120, 0.28) !important;
         border-radius: 16px !important;
         padding: 18px 20px 20px 20px !important;
         background-color: #eef0f2 !important;
         margin-top: 14px !important;
         margin-bottom: 16px !important;
+        overflow: hidden !important;
     }
 
-    .st-key-panel_ringkasan > div,
-    .st-key-panel_model > div,
-    .st-key-panel_model_empty > div,
-    .st-key-panel_visualisasi > div {
+    div[data-testid="stVerticalBlockBorderWrapper"] > div {
         background-color: #eef0f2 !important;
         border-radius: 16px !important;
     }
@@ -1152,7 +1147,7 @@ st.markdown(
             rgba(46, 157, 87, 0.10) 0%,
             rgba(46, 157, 87, 0.06) 55%,
             rgba(46, 157, 87, 0.03) 100%
-        ) !important;
+        );
     }
 
     .subsection-title {
@@ -1165,17 +1160,17 @@ st.markdown(
         padding: 0;
         border-left: none;
         border-radius: 0;
-        background-color: transparent !important;
+        background-color: transparent;
     }
 
     /* ====== CARD RINGKASAN DATA ====== */
     .metric-card {
         background-color: #ffffff !important;
-        border: 1px solid rgba(120, 120, 120, 0.18) !important;
-        border-left: 4px solid #2e9d57 !important;
-        border-radius: 12px !important;
+        border: 1px solid rgba(120, 120, 120, 0.18);
+        border-left: 4px solid #2e9d57;
+        border-radius: 12px;
         padding: 18px 20px;
-        box-shadow: none !important;
+        box-shadow: none;
         height: 112px;
         display: flex;
         flex-direction: column;
@@ -1193,7 +1188,6 @@ st.markdown(
         display: flex;
         align-items: center;
         line-height: 1.35;
-        background-color: transparent !important;
     }
 
     .metric-value {
@@ -1201,7 +1195,6 @@ st.markdown(
         color: var(--text-color);
         font-weight: 800;
         line-height: 1.1;
-        background-color: transparent !important;
     }
 
     /* ====== EXPANDER DAN TABEL ====== */
@@ -1225,13 +1218,10 @@ st.markdown(
         opacity: 0.78 !important;
         padding: 6px 8px !important;
         line-height: 1.35 !important;
-        background-color: transparent !important;
     }
 
     div[data-testid="stExpander"] summary p {
         font-weight: 800 !important;
-        margin: 0 !important;
-        background-color: transparent !important;
     }
 
     div[data-testid="stExpander"] summary:hover {
@@ -1242,10 +1232,10 @@ st.markdown(
     /* ====== CARD INTERPRETASI DAN CARA BACA ====== */
     .interpretasi-card,
     .baca-network-card {
-        background-color: #ffffff !important;
+        background-color: #ffffff;
         color: var(--text-color);
-        border: 1px solid rgba(120, 120, 120, 0.18) !important;
-        border-left: 4px solid #2e9d57 !important;
+        border: 1px solid rgba(120, 120, 120, 0.18);
+        border-left: 4px solid #2e9d57;
         border-radius: 12px;
         padding: 20px 24px;
         margin-top: 6px;
@@ -1269,7 +1259,6 @@ st.markdown(
         margin-bottom: 14px;
         line-height: 1.4;
         max-width: 980px;
-        background-color: transparent !important;
     }
 
     .interpretasi-card ul,
@@ -1278,7 +1267,6 @@ st.markdown(
         margin-bottom: 0px;
         padding-left: 26px;
         max-width: 980px;
-        background-color: transparent !important;
     }
 
     .interpretasi-card li,
@@ -1287,7 +1275,6 @@ st.markdown(
         line-height: 1.55;
         font-size: 14.5px;
         color: var(--text-color);
-        background-color: transparent !important;
     }
 
     .interpretasi-card li:last-child,
@@ -1299,13 +1286,12 @@ st.markdown(
     .baca-network-card b {
         color: var(--text-color);
         font-weight: 800;
-        background-color: transparent !important;
     }
 
     /* ====== GRAPH ====== */
     .graph-card {
         background-color: #ffffff !important;
-        border: 1px solid rgba(120, 120, 120, 0.24) !important;
+        border: 1px solid rgba(120, 120, 120, 0.24);
         border-radius: 16px;
         padding: 10px 12px;
         margin-top: 8px;
@@ -1321,16 +1307,10 @@ st.markdown(
         margin-left: auto;
         margin-right: auto;
         border-radius: 10px;
-        background-color: #ffffff !important;
     }
 
     /* ====== DATAFRAME ====== */
     div[data-testid="stDataFrame"] {
-        background-color: #ffffff !important;
-        border-radius: 12px !important;
-    }
-
-    div[data-testid="stDataFrame"] > div {
         background-color: #ffffff !important;
         border-radius: 12px !important;
     }
@@ -1374,20 +1354,14 @@ st.markdown(
         color: white;
         border: none;
     }
-
+    
     /* ====== DARK MODE FIX ====== */
     @media (prefers-color-scheme: dark) {
-        .st-key-panel_ringkasan,
-        .st-key-panel_model,
-        .st-key-panel_model_empty,
-        .st-key-panel_visualisasi,
-        .st-key-panel_ringkasan > div,
-        .st-key-panel_model > div,
-        .st-key-panel_model_empty > div,
-        .st-key-panel_visualisasi > div {
+        div[data-testid="stVerticalBlockBorderWrapper"],
+        div[data-testid="stVerticalBlockBorderWrapper"] > div {
             background-color: rgba(255, 255, 255, 0.035) !important;
-            border-color: rgba(255, 255, 255, 0.18) !important;
             box-shadow: none !important;
+            border-color: rgba(255, 255, 255, 0.18) !important;
         }
 
         .metric-card,
@@ -1399,19 +1373,6 @@ st.markdown(
             color: var(--text-color) !important;
         }
 
-        .metric-label,
-        .metric-value,
-        .interpretasi-title,
-        .baca-network-title,
-        .interpretasi-card ul,
-        .baca-network-card ul,
-        .interpretasi-card li,
-        .baca-network-card li,
-        .interpretasi-card b,
-        .baca-network-card b {
-            background-color: transparent !important;
-        }
-
         .section-title {
             background: linear-gradient(
                 90deg,
@@ -1421,12 +1382,11 @@ st.markdown(
             ) !important;
         }
 
-        div[data-testid="stDataFrame"],
-        div[data-testid="stDataFrame"] > div {
+        div[data-testid="stDataFrame"] {
             background-color: var(--background-color) !important;
         }
     }
-</style>
+    </style>
     """,
     unsafe_allow_html=True
 )
