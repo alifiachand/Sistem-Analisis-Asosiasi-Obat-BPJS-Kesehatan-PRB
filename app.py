@@ -1125,6 +1125,16 @@ st.markdown(
         margin-bottom: 16px !important;
     }
 
+    div[data-testid="stVerticalBlockBorderWrapper"] > div {
+        background-color: rgba(120, 120, 120, 0.075) !important;
+        border-radius: 16px !important;
+    }
+
+    div[data-testid="stVerticalBlockBorderWrapper"] div[data-testid="stVerticalBlock"] {
+        background-color: rgba(120, 120, 120, 0.075) !important;
+        border-radius: 16px !important;
+    }
+
     .section-title {
         font-size: 23px;
         font-weight: 850;
