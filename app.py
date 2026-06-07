@@ -1123,7 +1123,7 @@ st.markdown(
         border: 1px solid rgba(120, 120, 120, 0.28) !important;
         border-radius: 16px !important;
         padding: 18px 20px 20px 20px !important;
-        background-color: rgba(120, 120, 120, 0.075) !important;
+        background-color: #f5f6f8 !important;
         margin-top: 14px !important;
         margin-bottom: 16px !important;
     }
@@ -1132,7 +1132,7 @@ st.markdown(
     .st-key-panel_model > div,
     .st-key-panel_model_empty > div,
     .st-key-panel_visualisasi > div {
-        background-color: rgba(120, 120, 120, 0.075) !important;
+        background-color: #f5f6f8 !important;
         border-radius: 16px !important;
     }
 
