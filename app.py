@@ -1118,6 +1118,7 @@ st.markdown(
     /* ====== PANEL UTAMA ====== */
     .st-key-panel_ringkasan,
     .st-key-panel_model,
+    .st-key-panel_model_empty,
     .st-key-panel_visualisasi {
         border: 1px solid rgba(120, 120, 120, 0.28) !important;
         border-radius: 16px !important;
@@ -1130,6 +1131,7 @@ st.markdown(
     /* isi dalam panel */
     .st-key-panel_ringkasan > div,
     .st-key-panel_model > div,
+    .st-key-panel_model_empty > div,
     .st-key-panel_visualisasi > div {
         background-color: #f5f6f8 !important;
         border-radius: 16px !important;
@@ -1467,7 +1469,7 @@ if uploaded_file is not None:
         )
 
         if rules.empty:
-            with st.container(border=True):
+            with st.container(border=True, key="panel_model_empty"):
                 st.markdown('<div class="section-title">Model Prediksi</div>', unsafe_allow_html=True)
                 st.warning("Tidak ada aturan asosiasi yang terbentuk dengan parameter saat ini.")
         else:
@@ -1517,7 +1519,7 @@ if uploaded_file is not None:
                     )
 
             # VISUALISASI
-           with st.container(border=True, key="panel_visualisasi"):
+            with st.container(border=True, key="panel_visualisasi"):
                 st.markdown('<div class="section-title">Visualisasi</div>', unsafe_allow_html=True)
                 st.markdown('<div class="subsection-title">Network Graph Aturan Asosiasi</div>', unsafe_allow_html=True)
 
