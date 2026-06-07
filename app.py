@@ -1116,18 +1116,23 @@ st.markdown(
     """
     <style>
     /* ====== PANEL UTAMA ====== */
-    div[data-testid="stVerticalBlockBorderWrapper"] {
+    .st-key-panel_ringkasan,
+    .st-key-panel_model,
+    .st-key-panel_visualisasi {
         border: 1px solid rgba(120, 120, 120, 0.28) !important;
         border-radius: 16px !important;
         padding: 18px 20px 20px 20px !important;
-        background: #f5f6f8  !important;
+        background-color: #f5f6f8 !important;
         margin-top: 14px !important;
         margin-bottom: 16px !important;
-        overflow: hidden !important;
     }
 
-    div[data-testid="stVerticalBlockBorderWrapper"] {
-        box-shadow: inset 0 0 0 9999px #f5f6f8  !important;
+    /* isi dalam panel */
+    .st-key-panel_ringkasan > div,
+    .st-key-panel_model > div,
+    .st-key-panel_visualisasi > div {
+        background-color: #f5f6f8 !important;
+        border-radius: 16px !important;
     }
 
     .section-title {
@@ -1376,9 +1381,9 @@ if uploaded_file is not None:
         total_resep_teks = format_bilangan(total_resep)
 
         # RINGKASAN DATA
-        with st.container(border=True):
+        with st.container(border=True, key="panel_ringkasan"):
             st.markdown('<div class="section-title">Ringkasan Data</div>', unsafe_allow_html=True)
-
+            
             col1, col2, col3, col4 = st.columns(4)
 
             with col1:
@@ -1467,7 +1472,7 @@ if uploaded_file is not None:
                 st.warning("Tidak ada aturan asosiasi yang terbentuk dengan parameter saat ini.")
         else:
             # MODEL PREDIKSI
-            with st.container(border=True):
+            with st.container(border=True, key="panel_model"):
                 st.markdown('<div class="section-title">Model Prediksi</div>', unsafe_allow_html=True)
                 st.markdown('<div class="subsection-title">Hasil Aturan Asosiasi</div>', unsafe_allow_html=True)
 
@@ -1512,7 +1517,7 @@ if uploaded_file is not None:
                     )
 
             # VISUALISASI
-            with st.container(border=True):
+           with st.container(border=True, key="panel_visualisasi"):
                 st.markdown('<div class="section-title">Visualisasi</div>', unsafe_allow_html=True)
                 st.markdown('<div class="subsection-title">Network Graph Aturan Asosiasi</div>', unsafe_allow_html=True)
 
