@@ -1116,24 +1116,13 @@ st.markdown(
     """
     <style>
     /* ====== PANEL UTAMA ====== */
-    div[data-testid="stVerticalBlockBorderWrapper"]:has(.section-title) {
+    div[data-testid="stVerticalBlockBorderWrapper"] {
         border: 1px solid rgba(120, 120, 120, 0.28) !important;
         border-radius: 16px !important;
         padding: 18px 20px 20px 20px !important;
-        background: #e9ecef !important;
-        box-shadow: inset 0 0 0 9999px #e9ecef !important;
         margin-top: 14px !important;
         margin-bottom: 16px !important;
         overflow: hidden !important;
-    }
-
-    div[data-testid="stVerticalBlockBorderWrapper"]:has(.section-title) > div {
-        background: transparent !important;
-        border-radius: 16px !important;
-    }
-
-    div[data-testid="stVerticalBlockBorderWrapper"]:has(.section-title) div[data-testid="stVerticalBlock"] {
-        background: transparent !important;
     }
 
     .section-title {
@@ -1165,7 +1154,7 @@ st.markdown(
         padding: 0;
         border-left: none;
         border-radius: 0;
-        background-color: transparent !important;
+        background: transparent !important;
     }
 
     /* ====== CARD RINGKASAN DATA ====== */
@@ -1375,16 +1364,43 @@ st.markdown(
         border: none;
     }
 
+    /* ====== LIGHT MODE PANEL ABU ====== */
+    @media (prefers-color-scheme: light) {
+        div[data-testid="stVerticalBlockBorderWrapper"] {
+            background: #e9ecef !important;
+            box-shadow: inset 0 0 0 9999px #e9ecef !important;
+        }
+
+        div[data-testid="stVerticalBlockBorderWrapper"] > div,
+        div[data-testid="stVerticalBlockBorderWrapper"] div[data-testid="stVerticalBlock"],
+        div[data-testid="stVerticalBlockBorderWrapper"] div[data-testid="stVerticalBlock"] > div,
+        div[data-testid="stVerticalBlockBorderWrapper"] div[data-testid="stElementContainer"] {
+            background: transparent !important;
+        }
+
+        .metric-card,
+        div[data-testid="stExpander"] details,
+        .interpretasi-card,
+        .baca-network-card,
+        .graph-card,
+        div[data-testid="stDataFrame"],
+        div[data-testid="stDataFrame"] > div {
+            background: #ffffff !important;
+        }
+    }
+
     /* ====== DARK MODE FIX ====== */
     @media (prefers-color-scheme: dark) {
-        div[data-testid="stVerticalBlockBorderWrapper"]:has(.section-title) {
+        div[data-testid="stVerticalBlockBorderWrapper"] {
             background: rgba(255, 255, 255, 0.035) !important;
             box-shadow: none !important;
             border-color: rgba(255, 255, 255, 0.18) !important;
         }
 
-        div[data-testid="stVerticalBlockBorderWrapper"]:has(.section-title) > div,
-        div[data-testid="stVerticalBlockBorderWrapper"]:has(.section-title) div[data-testid="stVerticalBlock"] {
+        div[data-testid="stVerticalBlockBorderWrapper"] > div,
+        div[data-testid="stVerticalBlockBorderWrapper"] div[data-testid="stVerticalBlock"],
+        div[data-testid="stVerticalBlockBorderWrapper"] div[data-testid="stVerticalBlock"] > div,
+        div[data-testid="stVerticalBlockBorderWrapper"] div[data-testid="stElementContainer"] {
             background: transparent !important;
         }
 
