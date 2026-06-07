@@ -1115,53 +1115,27 @@ def tampilkan_fig_dalam_card(fig):
 st.markdown(
     """
     <style>
-    /* =========================================================
-       PANEL UTAMA
-       Catatan: selector dibuat dobel supaya tetap kena pada versi
-       Streamlit yang berbeda-beda.
-       ========================================================= */
-
-    div[data-testid="stVerticalBlockBorderWrapper"]:has(.section-title),
-    .st-key-panel_ringkasan,
-    .st-key-panel_model,
-    .st-key-panel_model_empty,
-    .st-key-panel_visualisasi {
-        position: relative !important;
-        isolation: isolate !important;
-        border: 1px solid rgba(120, 120, 120, 0.30) !important;
+    /* ====== PANEL UTAMA ====== */
+    div[data-testid="stVerticalBlockBorderWrapper"] {
+        border: 1px solid rgba(120, 120, 120, 0.28) !important;
         border-radius: 16px !important;
         padding: 18px 20px 20px 20px !important;
+        background-color: #e9ecef !important;
+        box-shadow: none !important;
         margin-top: 14px !important;
         margin-bottom: 16px !important;
         overflow: hidden !important;
-        background: transparent !important;
-        box-shadow: none !important;
     }
 
-    div[data-testid="stVerticalBlockBorderWrapper"]:has(.section-title)::before,
-    .st-key-panel_ringkasan::before,
-    .st-key-panel_model::before,
-    .st-key-panel_model_empty::before,
-    .st-key-panel_visualisasi::before {
-        content: "" !important;
-        position: absolute !important;
-        inset: 0 !important;
+    div[data-testid="stVerticalBlockBorderWrapper"] > div {
+        background-color: #e9ecef !important;
         border-radius: 16px !important;
-        background: #e6e8eb !important;
-        z-index: 0 !important;
-        pointer-events: none !important;
     }
 
-    div[data-testid="stVerticalBlockBorderWrapper"]:has(.section-title) > div,
-    div[data-testid="stVerticalBlockBorderWrapper"]:has(.section-title) div[data-testid="stVerticalBlock"],
-    .st-key-panel_ringkasan > div,
-    .st-key-panel_model > div,
-    .st-key-panel_model_empty > div,
-    .st-key-panel_visualisasi > div {
-        position: relative !important;
-        z-index: 1 !important;
-        background: transparent !important;
-        border-radius: 16px !important;
+    /* paksa area kosong di dalam panel ikut abu, tapi nanti card kecil dioverride putih */
+    div[data-testid="stVerticalBlockBorderWrapper"] div[data-testid="stVerticalBlock"],
+    div[data-testid="stVerticalBlockBorderWrapper"] div[data-testid="stElementContainer"] {
+        background-color: transparent !important;
     }
 
     .section-title {
@@ -1193,15 +1167,13 @@ st.markdown(
         padding: 0;
         border-left: none;
         border-radius: 0;
-        background: transparent !important;
+        background-color: transparent !important;
     }
 
     /* ====== CARD RINGKASAN DATA ====== */
     .metric-card {
-        position: relative !important;
-        z-index: 2 !important;
-        background: #ffffff !important;
-        border: 1px solid rgba(120, 120, 120, 0.20) !important;
+        background-color: #ffffff !important;
+        border: 1px solid rgba(120, 120, 120, 0.18) !important;
         border-left: 4px solid #2e9d57 !important;
         border-radius: 12px !important;
         padding: 18px 20px;
@@ -1211,6 +1183,10 @@ st.markdown(
         flex-direction: column;
         justify-content: center;
         margin-bottom: 12px;
+    }
+
+    .metric-card * {
+        background-color: transparent !important;
     }
 
     .metric-label {
@@ -1223,7 +1199,6 @@ st.markdown(
         display: flex;
         align-items: center;
         line-height: 1.35;
-        background: transparent !important;
     }
 
     .metric-value {
@@ -1231,20 +1206,18 @@ st.markdown(
         color: var(--text-color);
         font-weight: 800;
         line-height: 1.1;
-        background: transparent !important;
     }
 
     /* ====== EXPANDER DAN TABEL ====== */
     div[data-testid="stExpander"] {
         margin-top: 8px !important;
         margin-bottom: 8px !important;
-        position: relative !important;
-        z-index: 2 !important;
+        background-color: transparent !important;
     }
 
     div[data-testid="stExpander"] details {
-        background: #ffffff !important;
-        border: 1px solid rgba(120, 120, 120, 0.20) !important;
+        background-color: #ffffff !important;
+        border: 1px solid rgba(120, 120, 120, 0.18) !important;
         border-left: 4px solid #2e9d57 !important;
         border-radius: 12px !important;
         box-shadow: none !important;
@@ -1257,13 +1230,13 @@ st.markdown(
         opacity: 0.78 !important;
         padding: 6px 8px !important;
         line-height: 1.35 !important;
-        background: transparent !important;
+        background-color: transparent !important;
     }
 
     div[data-testid="stExpander"] summary p {
         font-weight: 800 !important;
         margin: 0 !important;
-        background: transparent !important;
+        background-color: transparent !important;
     }
 
     div[data-testid="stExpander"] summary:hover {
@@ -1274,11 +1247,9 @@ st.markdown(
     /* ====== CARD INTERPRETASI DAN CARA BACA ====== */
     .interpretasi-card,
     .baca-network-card {
-        position: relative !important;
-        z-index: 2 !important;
-        background: #ffffff !important;
+        background-color: #ffffff !important;
         color: var(--text-color);
-        border: 1px solid rgba(120, 120, 120, 0.20);
+        border: 1px solid rgba(120, 120, 120, 0.18);
         border-left: 4px solid #2e9d57;
         border-radius: 12px;
         padding: 20px 24px;
@@ -1286,6 +1257,11 @@ st.markdown(
         margin-bottom: 12px;
         box-shadow: none;
         transition: all 0.25s ease;
+    }
+
+    .interpretasi-card *,
+    .baca-network-card * {
+        background-color: transparent !important;
     }
 
     .interpretasi-card:hover,
@@ -1303,7 +1279,6 @@ st.markdown(
         margin-bottom: 14px;
         line-height: 1.4;
         max-width: 980px;
-        background: transparent !important;
     }
 
     .interpretasi-card ul,
@@ -1312,7 +1287,6 @@ st.markdown(
         margin-bottom: 0px;
         padding-left: 26px;
         max-width: 980px;
-        background: transparent !important;
     }
 
     .interpretasi-card li,
@@ -1321,7 +1295,6 @@ st.markdown(
         line-height: 1.55;
         font-size: 14.5px;
         color: var(--text-color);
-        background: transparent !important;
     }
 
     .interpretasi-card li:last-child,
@@ -1333,14 +1306,11 @@ st.markdown(
     .baca-network-card b {
         color: var(--text-color);
         font-weight: 800;
-        background: transparent !important;
     }
 
     /* ====== GRAPH ====== */
     .graph-card {
-        position: relative !important;
-        z-index: 2 !important;
-        background: #ffffff !important;
+        background-color: #ffffff !important;
         border: 1px solid rgba(120, 120, 120, 0.24);
         border-radius: 16px;
         padding: 10px 12px;
@@ -1357,19 +1327,17 @@ st.markdown(
         margin-left: auto;
         margin-right: auto;
         border-radius: 10px;
-        background: #ffffff !important;
+        background-color: #ffffff !important;
     }
 
     /* ====== DATAFRAME ====== */
     div[data-testid="stDataFrame"] {
-        position: relative !important;
-        z-index: 2 !important;
-        background: #ffffff !important;
+        background-color: #ffffff !important;
         border-radius: 12px !important;
     }
 
     div[data-testid="stDataFrame"] > div {
-        background: #ffffff !important;
+        background-color: #ffffff !important;
         border-radius: 12px !important;
     }
 
@@ -1395,8 +1363,7 @@ st.markdown(
     div.stDownloadButton {
         margin-top: 2px !important;
         margin-bottom: 4px !important;
-        position: relative !important;
-        z-index: 2 !important;
+        background-color: transparent !important;
     }
 
     div.stDownloadButton > button {
@@ -1417,21 +1384,16 @@ st.markdown(
 
     /* ====== DARK MODE FIX ====== */
     @media (prefers-color-scheme: dark) {
-        div[data-testid="stVerticalBlockBorderWrapper"]:has(.section-title)::before,
-        .st-key-panel_ringkasan::before,
-        .st-key-panel_model::before,
-        .st-key-panel_model_empty::before,
-        .st-key-panel_visualisasi::before {
-            background: rgba(255, 255, 255, 0.035) !important;
-        }
-
-        div[data-testid="stVerticalBlockBorderWrapper"]:has(.section-title),
-        .st-key-panel_ringkasan,
-        .st-key-panel_model,
-        .st-key-panel_model_empty,
-        .st-key-panel_visualisasi {
+        div[data-testid="stVerticalBlockBorderWrapper"],
+        div[data-testid="stVerticalBlockBorderWrapper"] > div {
+            background-color: rgba(255, 255, 255, 0.035) !important;
             border-color: rgba(255, 255, 255, 0.18) !important;
             box-shadow: none !important;
+        }
+
+        div[data-testid="stVerticalBlockBorderWrapper"] div[data-testid="stVerticalBlock"],
+        div[data-testid="stVerticalBlockBorderWrapper"] div[data-testid="stElementContainer"] {
+            background-color: transparent !important;
         }
 
         .metric-card,
@@ -1439,21 +1401,8 @@ st.markdown(
         .interpretasi-card,
         .baca-network-card,
         .graph-card {
-            background: var(--background-color) !important;
+            background-color: var(--background-color) !important;
             color: var(--text-color) !important;
-        }
-
-        .metric-label,
-        .metric-value,
-        .interpretasi-title,
-        .baca-network-title,
-        .interpretasi-card ul,
-        .baca-network-card ul,
-        .interpretasi-card li,
-        .baca-network-card li,
-        .interpretasi-card b,
-        .baca-network-card b {
-            background: transparent !important;
         }
 
         .section-title {
@@ -1467,7 +1416,7 @@ st.markdown(
 
         div[data-testid="stDataFrame"],
         div[data-testid="stDataFrame"] > div {
-            background: var(--background-color) !important;
+            background-color: var(--background-color) !important;
         }
     }
     </style>
