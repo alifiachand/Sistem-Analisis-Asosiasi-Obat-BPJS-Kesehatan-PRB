@@ -1591,7 +1591,7 @@ if uploaded_file is not None:
                             <ul>
                                 <li>Nilai support <b>{item["support"]}</b> menunjukkan bahwa kombinasi tersebut muncul pada <b>{format_bilangan(item["jumlah_kombinasi"])} dari {total_resep_teks} resep</b>.</li>
                                 <li>Nilai confidence <b>{item["confidence"]}</b> menunjukkan bahwa dari <b>{format_bilangan(item["jumlah_antecedent"])} resep</b> yang berisi <b>{item["antecedent"]}</b>, terdapat <b>{format_bilangan(item["jumlah_confidence"])} resep</b> yang juga berisi <b>{item["consequent"]}</b>.</li>
-                                <li>Nilai lift <b>{item["lift"]}</b> menunjukkan bahwa <b>{item["antecedent"]}</b> dan <b>{item["consequent"]}</b> memiliki kecenderungan muncul bersamaan dalam resep.</li>
+                                <li>Nilai lift {item["lift"]} menunjukkan bahwa {item["antecedent"]} dan {item["consequent"]} memiliki kecenderungan <b>muncul bersamaan dalam resep</b>.</li>
                             </ul>
                         </div>
                         """,
