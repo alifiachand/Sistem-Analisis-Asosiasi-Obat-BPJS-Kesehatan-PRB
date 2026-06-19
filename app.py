@@ -1589,9 +1589,9 @@ if uploaded_file is not None:
                                 Aturan {item["nomor"]}: IF {item["antecedent"]} THEN {item["consequent"]}
                             </div>
                             <ul>
-                                <li>Kombinasi tersebut muncul pada <b>{format_bilangan(item["jumlah_kombinasi"])} dari {total_resep_teks} resep</b> atau <b>{item["support"]}</b>.</li>
-                                <li>Dari <b>{format_bilangan(item["jumlah_antecedent"])} resep</b> yang berisi <b>{item["antecedent"]}</b>, terdapat <b>{format_bilangan(item["jumlah_confidence"])} resep</b> atau <b>{item["confidence"]}</b> yang juga berisi <b>{item["consequent"]}</b>.</li>
-                                <li>Kedua obat tersebut <b>{item["lift"]} kali lebih sering muncul secara bersama dalam resep</b> dibandingkan jika masing-masing obat muncul secara terpisah.</li>
+                                <li>Nilai support <b>{item["support"]}</b> menunjukkan bahwa kombinasi tersebut muncul pada <b>{format_bilangan(item["jumlah_kombinasi"])} dari {total_resep_teks} resep</b>.</li>
+                                <li>Nilai confidence <b>{item["confidence"]}</b> menunjukkan bahwa dari <b>{format_bilangan(item["jumlah_antecedent"])} resep</b> yang berisi <b>{item["antecedent"]}</b>, terdapat <b>{format_bilangan(item["jumlah_confidence"])} resep</b> yang juga berisi <b>{item["consequent"]}</b>.</li>
+                                <li>Nilai lift <b>{item["lift"]}</b> menunjukkan bahwa <b>{item["antecedent"]}</b> dan <b>{item["consequent"]}</b> memiliki kecenderungan muncul bersamaan dalam resep.</li>
                             </ul>
                         </div>
                         """,
