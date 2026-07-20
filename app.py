@@ -1459,10 +1459,18 @@ def buat_network_graph(rules2):
 
     if len(pos) > 0:
         y_vals = [p[1] for p in pos.values()]
-        ax.set_ylim(min(y_vals) - 0.8, max(y_vals) + 0.8)
+
+        # Tambahkan ruang di atas dan bawah agar node serta garis tepi tidak terpotong
+        padding_y = 1.8
+
+        ax.set_ylim(
+            min(y_vals) - padding_y,
+            max(y_vals) + padding_y
+        )
+
         ax.set_xlim(-4.4, 4.4)
 
-    plt.tight_layout()
+    plt.tight_layout(pad=2.0)
 
     return fig
 
@@ -1830,6 +1838,20 @@ st.markdown(
 
     button[data-baseweb="tab"][aria-selected="true"],
     button[data-baseweb="tab"][aria-selected="true"] p {
+        color: #1f77d0 !important;
+    }
+
+    /* ====== WARNA TAB AKTIF ====== */
+    div[data-testid="stTabs"] div[data-baseweb="tab-highlight"] {
+        background-color: #1f77d0 !important;
+    }
+
+    div[data-testid="stTabs"] button[data-baseweb="tab"][aria-selected="true"] {
+        color: #1f77d0 !important;
+        border-bottom-color: #1f77d0 !important;
+    }
+
+    div[data-testid="stTabs"] button[data-baseweb="tab"][aria-selected="true"] p {
         color: #1f77d0 !important;
     }
 
