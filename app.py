@@ -613,7 +613,201 @@ def buat_interpretasi_rules(rules, total_resep, jumlah=3):
     return hasil
 
 
-def buat_file_excel(rules_tampil, df_bersih, transaksi, daftar_obat_unik):
+
+# INFORMASI KEWASPADAAN OBAT #
+
+
+VARIASI_KEKUATAN_ACUAN = {
+    "acarbose": "50 mg dan 100 mg",
+    "acetylsalicylic acid": "80 mg dan 100 mg",
+    "amlodipine": "5 mg dan 10 mg",
+    "atorvastatin": "10 mg dan 20 mg",
+    "bisoprolol": "1,25 mg; 2,5 mg; dan 5 mg",
+    "budesonide + formoterol": "80/4,5 mcg dan 160/4,5 mcg",
+    "candesartan": "8 mg dan 16 mg",
+    "captopril": "12,5 mg; 25 mg; dan 50 mg",
+    "carvedilol": "6,25 mg dan 25 mg",
+    "diltiazem": "30 mg; 100 mg; dan 200 mg",
+    "divalproex sodium": "250 mg dan 500 mg",
+    "gliclazide": "80 mg dan 60 mg",
+    "glimepiride": "1 mg; 2 mg; 3 mg; dan 4 mg",
+    "glyceryl trinitrate": "2,5 mg dan 5 mg",
+    "irbesartan": "150 mg dan 300 mg",
+    "isosorbide dinitrate": "5 mg dan 10 mg",
+    "lisinopril": "5 mg dan 10 mg",
+    "metformin": "500 mg dan 850 mg",
+    "nifedipine": "10 mg dan 30 mg",
+    "pioglitazone": "15 mg dan 30 mg",
+    "ramipril": "2,5 mg; 5 mg; dan 10 mg",
+    "salmeterol + fluticasone": "25/50 mcg; 50/100 mcg; 50/250 mcg; dan 50/500 mcg",
+    "simvastatin": "10 mg dan 20 mg",
+    "spironolactone": "25 mg dan 100 mg",
+    "telmisartan": "40 mg dan 80 mg",
+    "theophylline": "150 mg dan 300 mg",
+    "valsartan": "80 mg dan 160 mg"
+}
+
+
+PASANGAN_ZAT_AKTIF_MIRIP = [
+    ("amiodarone", "amantadine"),
+    ("amlodipine", "amiloride"),
+    ("atorvastatin", "atomoxetine"),
+    ("captopril", "carvedilol"),
+    ("chlorpromazine", "chlordiazepoxide"),
+    ("chlorpromazine", "chlorpropamide"),
+    ("clonidine", "clonazepam"),
+    ("clonidine", "clozapine"),
+    ("clozapine", "clonazepam"),
+    ("diltiazem", "diazepam"),
+    ("hydrochlorothiazide", "hydralazine"),
+    ("hydrochlorothiazide", "hydroxyzine"),
+    ("hydrochlorothiazide", "hydroxychloroquine"),
+    ("metformin", "metronidazole"),
+    ("nifedipine", "nicardipine"),
+    ("nifedipine", "nimodipine"),
+    ("phenobarbital", "pentobarbital"),
+    ("risperidone", "ropinirole")
+]
+
+
+def buat_tabel_variasi_kekuatan_acuan():
+    return pd.DataFrame(
+        [
+            {
+                "Zat Aktif": zat_aktif,
+                "Kekuatan Sediaan": kekuatan
+            }
+            for zat_aktif, kekuatan in VARIASI_KEKUATAN_ACUAN.items()
+        ]
+    )
+
+
+def buat_tabel_zat_aktif_mirip_acuan():
+    return pd.DataFrame(
+        PASANGAN_ZAT_AKTIF_MIRIP,
+        columns=[
+            "Nama Zat Aktif",
+            "Pasangan Nama Zat Aktif yang Mirip"
+        ]
+    )
+
+
+PASANGAN_MIRIP_MAP = {}
+for zat_aktif_1, zat_aktif_2 in PASANGAN_ZAT_AKTIF_MIRIP:
+    PASANGAN_MIRIP_MAP.setdefault(zat_aktif_1, set()).add(zat_aktif_2)
+    PASANGAN_MIRIP_MAP.setdefault(zat_aktif_2, set()).add(zat_aktif_1)
+
+
+DAFTAR_ZAT_AKTIF_ACUAN = sorted(
+    set(VARIASI_KEKUATAN_ACUAN.keys()) | set(PASANGAN_MIRIP_MAP.keys()),
+    key=len,
+    reverse=True
+)
+
+
+def normalisasi_nama_obat(nama_obat):
+    nama_obat = "" if pd.isna(nama_obat) else str(nama_obat)
+    nama_obat = nama_obat.lower().strip()
+    nama_obat = nama_obat.replace("asetosal", "acetylsalicylic acid")
+    nama_obat = nama_obat.replace("acetosal", "acetylsalicylic acid")
+    nama_obat = re.sub(r"\s+", " ", nama_obat)
+    return nama_obat
+
+
+def ambil_zat_aktif(nama_obat):
+    nama_normal = normalisasi_nama_obat(nama_obat)
+
+    for zat_aktif in DAFTAR_ZAT_AKTIF_ACUAN:
+        if nama_normal == zat_aktif or nama_normal.startswith(zat_aktif + " "):
+            return zat_aktif
+
+    # Fallback untuk nama yang belum terdapat pada daftar acuan.
+    hasil = re.sub(
+        r"\s+\d+(?:[.,]\d+)?(?:\s*[+/]\s*\d+(?:[.,]\d+)?)?\s*(?:mg|mcg|g|ml|iu(?:/ml)?)\b.*$",
+        "",
+        nama_normal
+    )
+    return hasil.strip()
+
+
+def ambil_kekuatan_dalam_data(nama_obat, zat_aktif):
+    nama_normal = normalisasi_nama_obat(nama_obat)
+
+    if nama_normal.startswith(zat_aktif):
+        kekuatan = nama_normal[len(zat_aktif):].strip()
+    else:
+        kekuatan = nama_normal
+
+    return kekuatan if kekuatan else "-"
+
+
+def buat_informasi_kewaspadaan(daftar_obat_unik):
+    kekuatan_dalam_data = {}
+
+    for nama_obat in daftar_obat_unik:
+        zat_aktif = ambil_zat_aktif(nama_obat)
+        kekuatan = ambil_kekuatan_dalam_data(nama_obat, zat_aktif)
+
+        kekuatan_dalam_data.setdefault(zat_aktif, set()).add(kekuatan)
+
+    zat_aktif_variasi_kekuatan = sorted(
+        zat_aktif
+        for zat_aktif in kekuatan_dalam_data
+        if zat_aktif in VARIASI_KEKUATAN_ACUAN
+    )
+
+    zat_aktif_nama_mirip = sorted(
+        zat_aktif
+        for zat_aktif in kekuatan_dalam_data
+        if zat_aktif in PASANGAN_MIRIP_MAP
+    )
+
+    seluruh_zat_aktif = sorted(
+        set(zat_aktif_variasi_kekuatan) | set(zat_aktif_nama_mirip)
+    )
+
+    baris_detail = []
+
+    for zat_aktif in seluruh_zat_aktif:
+        kategori = []
+
+        if zat_aktif in VARIASI_KEKUATAN_ACUAN:
+            kategori.append("Variasi kekuatan")
+
+        if zat_aktif in PASANGAN_MIRIP_MAP:
+            kategori.append("Zat aktif mirip")
+
+        daftar_kekuatan = sorted(kekuatan_dalam_data.get(zat_aktif, {"-"}))
+        pasangan_mirip = sorted(PASANGAN_MIRIP_MAP.get(zat_aktif, set()))
+
+        baris_detail.append({
+            "Zat Aktif dalam Data": zat_aktif,
+            "Kategori Informasi": "; ".join(kategori),
+            "Kekuatan dalam Data": "; ".join(daftar_kekuatan),
+            "Variasi Kekuatan Acuan": VARIASI_KEKUATAN_ACUAN.get(zat_aktif, "-"),
+            "Pasangan Zat Aktif Mirip": "; ".join(pasangan_mirip) if pasangan_mirip else "-"
+        })
+
+    kolom_detail = [
+        "Zat Aktif dalam Data",
+        "Kategori Informasi",
+        "Kekuatan dalam Data",
+        "Variasi Kekuatan Acuan",
+        "Pasangan Zat Aktif Mirip"
+    ]
+
+    informasi_df = pd.DataFrame(baris_detail, columns=kolom_detail)
+
+    return informasi_df, zat_aktif_variasi_kekuatan, zat_aktif_nama_mirip
+
+
+def buat_file_excel(
+    rules_tampil,
+    df_bersih,
+    transaksi,
+    daftar_obat_unik,
+    informasi_kewaspadaan=None
+):
     output = BytesIO()
 
     daftar_obat_unik_df = pd.DataFrame({
@@ -625,6 +819,13 @@ def buat_file_excel(rules_tampil, df_bersih, transaksi, daftar_obat_unik):
         df_bersih.to_excel(writer, index=False, sheet_name="Data Bersih")
         transaksi.to_excel(writer, index=False, sheet_name="Data Transaksi")
         daftar_obat_unik_df.to_excel(writer, index=False, sheet_name="Daftar Obat Unik")
+
+        if informasi_kewaspadaan is not None:
+            informasi_kewaspadaan.to_excel(
+                writer,
+                index=False,
+                sheet_name="Informasi Kewaspadaan"
+            )
 
     output.seek(0)
     return output
@@ -690,7 +891,9 @@ def tampilkan_keterangan_network(rules):
 - Lingkaran abu-abu menunjukkan obat yang ikut muncul (*consequent*).
 - Garis putus-putus menunjukkan arah dari obat dalam resep menuju kode aturan.
 - Garis lurus menunjukkan arah dari kode aturan menuju obat yang ikut muncul.
-- Warna garis menunjukkan obat tujuan atau obat yang ikut muncul pada aturan tersebut.
+- Garis tepi oranye menunjukkan zat aktif dengan variasi kekuatan sediaan.
+- Garis tepi merah menunjukkan zat aktif yang memiliki pasangan nama mirip berdasarkan daftar ISMP.
+- Garis tepi oranye dan merah menunjukkan zat aktif yang termasuk dalam kedua informasi tersebut.
 
 **Cara baca:**
 - Network graph dibaca dari garis putus-putus menuju ke kotak aturan, kemudian dari kotak aturan mengikuti garis lurus menuju ke obat tujuan.
@@ -698,18 +901,29 @@ def tampilkan_keterangan_network(rules):
         """
     )
 
-    st.markdown("**Keterangan warna garis:**")
+    st.markdown("**Warna garis berdasarkan consequent:**")
 
+    item_warna = []
     for obat, warna in warna_map.items():
-        st.markdown(
+        item_warna.append(
             f"""
-            <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
-                <span style="background-color:{warna}; width:14px; height:14px; display:inline-block; border-radius:3px; border:1px solid #999;"></span>
+            <div style="display:flex; align-items:center; gap:7px; white-space:nowrap;">
+                <span style="width:28px; height:0; border-top:3px solid {warna}; display:inline-block;"></span>
                 <span>{obat}</span>
             </div>
-            """,
-            unsafe_allow_html=True
+            """
         )
+
+    st.markdown(
+        f"""
+        <div style="display:flex; flex-wrap:wrap; column-gap:20px; row-gap:8px; margin-top:4px;">
+            {''.join(item_warna)}
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+
 def ambil_contoh_baca_network(rules2, jumlah=3):
     rules2 = rules2.copy()
 
@@ -986,6 +1200,38 @@ def buat_network_graph(rules2):
         else:
             labels[node] = node
 
+    all_drug_nodes = [
+        n for n, d in G.nodes(data=True)
+        if d.get("node_type") in ["drug_left", "drug_right"]
+    ]
+
+    strength_warning_nodes = [
+        n for n in all_drug_nodes
+        if ambil_zat_aktif(n) in VARIASI_KEKUATAN_ACUAN
+    ]
+
+    similar_name_warning_nodes = [
+        n for n in all_drug_nodes
+        if ambil_zat_aktif(n) in PASANGAN_MIRIP_MAP
+    ]
+
+    both_warning_nodes = sorted(
+        set(strength_warning_nodes) & set(similar_name_warning_nodes)
+    )
+    strength_only_nodes = sorted(
+        set(strength_warning_nodes) - set(both_warning_nodes)
+    )
+    similar_only_nodes = sorted(
+        set(similar_name_warning_nodes) - set(both_warning_nodes)
+    )
+
+    node_size_map = {}
+    for node, data in G.nodes(data=True):
+        if data.get("node_type") == "drug_left":
+            node_size_map[node] = 2400
+        elif data.get("node_type") == "drug_right":
+            node_size_map[node] = 2600
+
     fig, ax = plt.subplots(figsize=(13, 14))
 
     left_nodes = [
@@ -1081,6 +1327,134 @@ def buat_network_graph(rules2):
             ax=ax
         )
 
+    # Garis tepi informasi obat digambar setelah edge agar tetap terlihat jelas.
+    strength_border_color = "#FF9D00"
+    similar_border_color = "#C00000"
+    ring_width = 7
+    separator_width = 2
+
+    def enlarged_node_size(base_size, radius_addition):
+        return (np.sqrt(base_size) + radius_addition) ** 2
+
+    def original_node_color(node):
+        if G.nodes[node].get("node_type") == "drug_left":
+            return "lightblue"
+        return "lightgray"
+
+    if strength_only_nodes:
+        nx.draw_networkx_nodes(
+            G, pos,
+            nodelist=strength_only_nodes,
+            node_color=strength_border_color,
+            edgecolors="none",
+            node_size=[
+                enlarged_node_size(node_size_map[n], ring_width)
+                for n in strength_only_nodes
+            ],
+            alpha=1,
+            ax=ax
+        )
+
+        nx.draw_networkx_nodes(
+            G, pos,
+            nodelist=strength_only_nodes,
+            node_color=[original_node_color(n) for n in strength_only_nodes],
+            edgecolors="none",
+            node_size=[node_size_map[n] for n in strength_only_nodes],
+            alpha=0.95,
+            ax=ax
+        )
+
+    if similar_only_nodes:
+        nx.draw_networkx_nodes(
+            G, pos,
+            nodelist=similar_only_nodes,
+            node_color=similar_border_color,
+            edgecolors="none",
+            node_size=[
+                enlarged_node_size(node_size_map[n], ring_width)
+                for n in similar_only_nodes
+            ],
+            alpha=1,
+            ax=ax
+        )
+
+        nx.draw_networkx_nodes(
+            G, pos,
+            nodelist=similar_only_nodes,
+            node_color=[original_node_color(n) for n in similar_only_nodes],
+            edgecolors="none",
+            node_size=[node_size_map[n] for n in similar_only_nodes],
+            alpha=0.95,
+            ax=ax
+        )
+
+    if both_warning_nodes:
+        # Lapisan terluar merah dan lapisan dalam oranye dibuat sama tebal.
+        nx.draw_networkx_nodes(
+            G, pos,
+            nodelist=both_warning_nodes,
+            node_color=similar_border_color,
+            edgecolors="none",
+            node_size=[
+                enlarged_node_size(
+                    node_size_map[n],
+                    (2 * ring_width) + separator_width
+                )
+                for n in both_warning_nodes
+            ],
+            alpha=1,
+            ax=ax
+        )
+
+        nx.draw_networkx_nodes(
+            G, pos,
+            nodelist=both_warning_nodes,
+            node_color="white",
+            edgecolors="none",
+            node_size=[
+                enlarged_node_size(
+                    node_size_map[n],
+                    ring_width + separator_width
+                )
+                for n in both_warning_nodes
+            ],
+            alpha=1,
+            ax=ax
+        )
+
+        nx.draw_networkx_nodes(
+            G, pos,
+            nodelist=both_warning_nodes,
+            node_color=strength_border_color,
+            edgecolors="none",
+            node_size=[
+                enlarged_node_size(node_size_map[n], ring_width)
+                for n in both_warning_nodes
+            ],
+            alpha=1,
+            ax=ax
+        )
+
+        nx.draw_networkx_nodes(
+            G, pos,
+            nodelist=both_warning_nodes,
+            node_color=[original_node_color(n) for n in both_warning_nodes],
+            edgecolors="none",
+            node_size=[node_size_map[n] for n in both_warning_nodes],
+            alpha=0.95,
+            ax=ax
+        )
+
+    # Gambar ulang label agar tidak tertutup oleh garis tepi informasi obat.
+    nx.draw_networkx_labels(
+        G, pos,
+        labels=labels,
+        font_size=10,
+        font_weight="bold",
+        ax=ax
+    )
+
     ax.axis("off")
 
     if len(pos) > 0:
@@ -1126,6 +1500,21 @@ st.markdown(
         background-color: #f5f6f8 !important;
         margin-top: 14px !important;
         margin-bottom: 16px !important;
+    }
+
+    /* ====== PANEL INFORMASI KEWASPADAAN OBAT ====== */
+    .st-key-panel_kewaspadaan {
+        border: 1px solid rgba(120, 120, 120, 0.28) !important;
+        border-radius: 16px !important;
+        padding: 18px 20px 20px 20px !important;
+        background-color: #f5f6f8 !important;
+        margin-top: 14px !important;
+        margin-bottom: 16px !important;
+    }
+
+    .st-key-panel_kewaspadaan > div {
+        background-color: #f5f6f8 !important;
+        border-radius: 16px !important;
     }
 
     /* isi dalam panel */
@@ -1364,6 +1753,16 @@ st.markdown(
 
 
     /* ====== FIX DARK MODE: PANEL TETAP TERBACA ====== */
+    .st-key-panel_kewaspadaan,
+    .st-key-panel_kewaspadaan * {
+        color: #111827 !important;
+    }
+
+    .st-key-panel_kewaspadaan,
+    .st-key-panel_kewaspadaan > div {
+        background-color: #f5f6f8 !important;
+    }
+
     .st-key-panel_ringkasan,
     .st-key-panel_model,
     .st-key-panel_model_empty,
@@ -1462,18 +1861,25 @@ if uploaded_file is not None:
         total_resep = transaksi["ID Resep"].nunique()
         total_resep_teks = format_bilangan(total_resep)
 
+        informasi_kewaspadaan, zat_aktif_variasi_kekuatan, zat_aktif_nama_mirip = (
+            buat_informasi_kewaspadaan(daftar_obat_unik)
+        )
+
+        tabel_variasi_kekuatan_acuan = buat_tabel_variasi_kekuatan_acuan()
+        tabel_zat_aktif_mirip_acuan = buat_tabel_zat_aktif_mirip_acuan()
+
         # RINGKASAN DATA
         with st.container(border=True, key="panel_ringkasan"):
             st.markdown('<div class="section-title">Ringkasan Data</div>', unsafe_allow_html=True)
-            
-            col1, col2, col3, col4 = st.columns(4)
+
+            col1, col2 = st.columns(2)
 
             with col1:
                 st.markdown(
                     f"""
                     <div class="metric-card">
-                        <div class="metric-label">Baris Data Mentah</div>
-                        <div class="metric-value">{format_bilangan(len(df_upload))}</div>
+                        <div class="metric-label">Jumlah Resep</div>
+                        <div class="metric-value">{format_bilangan(total_resep)}</div>
                     </div>
                     """,
                     unsafe_allow_html=True
@@ -1483,29 +1889,7 @@ if uploaded_file is not None:
                 st.markdown(
                     f"""
                     <div class="metric-card">
-                        <div class="metric-label">Baris Setelah Duplikasi Dihapus</div>
-                        <div class="metric-value">{format_bilangan(len(df_bersih))}</div>
-                    </div>
-                    """,
-                    unsafe_allow_html=True
-                )
-
-            with col3:
-                st.markdown(
-                    f"""
-                    <div class="metric-card">
-                        <div class="metric-label">Jumlah Resep Unik</div>
-                        <div class="metric-value">{format_bilangan(total_resep)}</div>
-                    </div>
-                    """,
-                    unsafe_allow_html=True
-                )
-
-            with col4:
-                st.markdown(
-                    f"""
-                    <div class="metric-card">
-                        <div class="metric-label">Jumlah Obat Unik</div>
+                        <div class="metric-label">Jumlah Variasi Obat</div>
                         <div class="metric-value">{format_bilangan(jumlah_obat_unik_transaksi)}</div>
                     </div>
                     """,
@@ -1516,7 +1900,7 @@ if uploaded_file is not None:
 
             with st.expander("Lihat Detail Data"):
                 tab_obat, tab_mentah, tab_bersih, tab_transaksi = st.tabs([
-                    "Daftar Obat Unik",
+                    "Daftar Variasi Obat",
                     "Data Mentah",
                     "Data Bersih",
                     "Data Transaksi"
@@ -1542,6 +1926,75 @@ if uploaded_file is not None:
                     transaksi_tampil.index = range(1, len(transaksi_tampil) + 1)
                     st.dataframe(transaksi_tampil, use_container_width=True)
 
+        # INFORMASI KEWASPADAAN OBAT
+        with st.container(border=True, key="panel_kewaspadaan"):
+            st.markdown(
+                '<div class="section-title">Informasi Kewaspadaan Obat</div>',
+                unsafe_allow_html=True
+            )
+
+            col1, col2 = st.columns(2)
+
+            with col1:
+                st.markdown(
+                    f"""
+                    <div class="metric-card">
+                        <div class="metric-label">Zat Aktif dengan Variasi Kekuatan</div>
+                        <div class="metric-value">{format_bilangan(len(tabel_variasi_kekuatan_acuan))}</div>
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
+
+            with col2:
+                st.markdown(
+                    f"""
+                    <div class="metric-card">
+                        <div class="metric-label">Zat Aktif dengan Nama Mirip</div>
+                        <div class="metric-value">{format_bilangan(len(tabel_zat_aktif_mirip_acuan))}</div>
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
+
+            st.markdown(
+                """
+                Informasi ini memuat daftar zat aktif yang memiliki lebih dari satu kekuatan sediaan
+                serta pasangan zat aktif dengan kemiripan nama berdasarkan daftar ISMP. Informasi tersebut
+                dapat dijadikan sebagai perhatian tambahan untuk mendukung kehati-hatian dalam proses penginputan,
+                pemilihan, pengambilan, penyiapan, dan penyerahan obat.
+                """
+            )
+
+            with st.expander("Lihat Detail Informasi Obat"):
+                tab_variasi, tab_mirip = st.tabs([
+                    "Variasi Kekuatan",
+                    "Zat Aktif Mirip"
+                ])
+
+                with tab_variasi:
+                    informasi_variasi_tampil = tabel_variasi_kekuatan_acuan.copy()
+                    informasi_variasi_tampil.index = range(
+                        1,
+                        len(informasi_variasi_tampil) + 1
+                    )
+                    st.dataframe(
+                        informasi_variasi_tampil,
+                        use_container_width=True
+                    )
+
+                with tab_mirip:
+                    informasi_mirip_tampil = tabel_zat_aktif_mirip_acuan.copy()
+                    informasi_mirip_tampil.index = range(
+                        1,
+                        len(informasi_mirip_tampil) + 1
+                    )
+                    st.dataframe(
+                        informasi_mirip_tampil,
+                        use_container_width=True
+                    )
+
+
         frequent_itemsets, rules = proses_arm(
             transaksi,
             min_support=0.026,
@@ -1566,7 +2019,8 @@ if uploaded_file is not None:
                     rules_tampil=rules_tampil,
                     df_bersih=df_bersih,
                     transaksi=transaksi,
-                    daftar_obat_unik=daftar_obat_unik
+                    daftar_obat_unik=daftar_obat_unik,
+                    informasi_kewaspadaan=informasi_kewaspadaan
                 )
 
                 st.download_button(
@@ -1605,6 +2059,22 @@ if uploaded_file is not None:
 
                 fig = buat_network_graph(rules)
                 tampilkan_fig_dalam_card(fig)
+
+                st.markdown(
+                    """
+                    <div class="interpretasi-card">
+                        <div class="interpretasi-title">
+                            ⚠️ Informasi Kewaspadaan
+                        </div>
+                        <ul>
+                            <li>Obat dengan <b>garis tepi oranye</b> memiliki <b>variasi kekuatan sediaan</b>, sehingga diperlukan kehati-hatian saat menginput, memilih, mengambil, menyiapkan, dan menyerahkan obat.</li>
+                            <li>Obat dengan <b>garis tepi merah</b> memiliki <b>pasangan zat aktif dengan nama mirip</b>, sehingga diperlukan kehati-hatian saat membaca nama, memilih, mengambil, menyiapkan, dan menyerahkan obat.</li>
+                            <li>Obat dengan <b>garis tepi oranye dan merah</b> memiliki kedua karakteristik tersebut, sehingga verifikasi nama zat aktif dan kekuatan sediaan perlu dilakukan dengan lebih teliti.</li>
+                        </ul>
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
 
                 st.markdown("<div style='height: 8px;'></div>", unsafe_allow_html=True)
                 st.markdown('<div class="subsection-title">Contoh Cara Membaca Network Graph</div>', unsafe_allow_html=True)
