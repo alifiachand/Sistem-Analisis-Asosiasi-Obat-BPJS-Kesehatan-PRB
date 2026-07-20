@@ -1123,7 +1123,7 @@ def buat_network_graph(rules2):
     pos = {}
 
     rule_gap = 1.25
-    group_gap = 0.40
+    group_gap = 0.70
 
     current_y = 0
     rule_y_map = {}
@@ -1171,7 +1171,7 @@ def buat_network_graph(rules2):
 
     left_drugs_sorted = sorted(left_drugs_sorted, key=lambda d: left_anchor[d], reverse=True)
 
-    min_left_gap = 1.65
+    min_left_gap = 1.85
     last_y = None
 
     for drug in left_drugs_sorted:
@@ -1232,7 +1232,7 @@ def buat_network_graph(rules2):
         elif data.get("node_type") == "drug_right":
             node_size_map[node] = 2600
 
-    fig, ax = plt.subplots(figsize=(13, 14))
+    fig, ax = plt.subplots(figsize=(13, 18))
 
     left_nodes = [
         n for n, d in G.nodes(data=True)
@@ -1841,18 +1841,24 @@ st.markdown(
         color: #1f77d0 !important;
     }
 
-    /* ====== WARNA TAB AKTIF ====== */
-    div[data-testid="stTabs"] div[data-baseweb="tab-highlight"] {
-        background-color: #1f77d0 !important;
+    /* ====== WARNA TAB AKTIF: PAKSA BIRU ====== */
+    html body [data-testid="stTabs"] [data-baseweb="tab-highlight"] {
+        display: none !important;
     }
 
-    div[data-testid="stTabs"] button[data-baseweb="tab"][aria-selected="true"] {
-        color: #1f77d0 !important;
-        border-bottom-color: #1f77d0 !important;
+    html body [data-testid="stTabs"] button[role="tab"] {
+        box-shadow: none !important;
+        border-bottom: none !important;
     }
 
-    div[data-testid="stTabs"] button[data-baseweb="tab"][aria-selected="true"] p {
+    html body [data-testid="stTabs"] button[role="tab"][aria-selected="true"] {
         color: #1f77d0 !important;
+        box-shadow: inset 0 -2px 0 #1f77d0 !important;
+    }
+
+    html body [data-testid="stTabs"] button[role="tab"][aria-selected="true"] p {
+        color: #1f77d0 !important;
+        font-weight: 700 !important;
     }
 
     </style>
